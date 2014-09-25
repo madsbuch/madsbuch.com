@@ -129,6 +129,12 @@
 		height:30px;
 		background:#222 url('../images/social_googleplus.png') no-repeat 4px 3px;
 	}
+	.social-github {
+		float:left;
+		width:30px;
+		height:30px;
+		background:#222 url('../images/social_github.png') no-repeat 4px 3px;
+	}
 	.social-in {
 		float:left;
 		width:30px;
@@ -142,6 +148,9 @@
 		background-color:#22b1e5;
 	}
 	.social-googleplus:hover {
+		background-color:#d94a38;
+	}
+	.social-github:hover {
 		background-color:#d94a38;
 	}
 	.social-in:hover {
