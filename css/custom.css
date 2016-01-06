@@ -1,0 +1,26 @@
+	.text-box {
+		margin-bottom: 30px;
+		line-height:17px;
+		margin-left:5px;
+		color: #444;
+		font-size:13px;
+		border-left:1px solid /*mainColor*/#fdc750;
+		padding-left:15px;
+		padding-top: 7px;
+		padding-bottom: 7px;
+	}
+	.text-box h4 {
+		font-size: 25px;
+		line-height:35px;
+		color: #444;
+	}
+	.text-box h5 {
+		line-height:25px;
+		font-size:16px;
+		color: #999;
+	}
+	.text-box p {
+		color: #666;
+		font-size:13px;
+		margin-top:15px;
+	}
