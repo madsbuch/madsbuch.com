@@ -232,13 +232,14 @@ jQuery(document).ready(function(){
 	var $map 				= $('#map'),
 		$tabContactClass 	= ('tab-contact'),
 		$lat 				= '56.1718623',
-		$lon 				= '10.1854115';
+		$lon 				= '10.1854115',
+		$zoom				= 6;
 
 	$map.gmap().bind('init', function(ev, map) {
 		$map.gmap('addMarker', {'position': $lat +','+ $lon  , 'bounds': true}).click(function() {
 			$map.gmap('openInfoWindow', {'content': 'Hello World!'}, this);
 		});
-		$map.gmap('option', 'zoom', 16);
+		$map.gmap('option', 'zoom', $zoom);
 	});
 
 	// Refresh Map
