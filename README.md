@@ -1,5 +1,4 @@
-Buchi.dk webpage
-================
+# Personal Webpage
 
 Git repo for my personal webpage
 
