@@ -2,5 +2,5 @@
 
 Git repo for my personal webpage
 
-[Go to my website](http://www.madsbuch.github.io/)
+[Go to my website](http://madsbuch.github.io/)
 
