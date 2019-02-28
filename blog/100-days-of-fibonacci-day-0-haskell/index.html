@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <!-- (1) Optimize for mobile versions: http://goo.gl/EOpFl -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- (1) force latest IE rendering engine: bit.ly/1c8EiC9 -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <script>
+    // I have moved the blog
+    let url = 'https://blog.madsbuch.com' + window.location.pathname.replace('/blog', '')
+    window.location = url
+  </script>
+
+  <title>100 Days of Fibonacci - Day 0, Haskell</title>
+  <meta name="description" content="Today I taught my computer architecture class for the last time.My students and I discussed the complexity of the various Fibonaccialgorithms. Fibonacci is a function often used to test out newprog..." />
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@madspbuch" />
+    <meta name="twitter:title" content="100 Days of Fibonacci - Day 0, Haskell" />
+    <meta name="twitter:image" content="http://madsbuch.com/blog/assets/images/logo.png" />
+    
+    <meta name="twitter:description"  content="Today I taught my computer architecture class for the last time.My students and I discussed the complexity of the various Fibonaccialgorithms. Fibonacci is a function often used to test out newprog..." />
+    
+  
+  
+  <meta property="og:site_name" content="Mads Buch" />
+  <meta property="og:title" content="100 Days of Fibonacci - Day 0, Haskell"/>
+  
+  <meta property="og:description" content="Today I taught my computer architecture class for the last time.My students and I discussed the complexity of the various Fibonaccialgorithms. Fibonacci is a function often used to test out newprog..." />
+  
+  <meta property="og:image" content="http://madsbuch.com/blog/assets/images/logo.png" />
+  <meta property="og:url" content="http://madsbuch.com/blog/100-days-of-fibonacci-day-0-haskell/" >
+  <meta property="og:type" content="blog" />
+
+  
+  <meta property="fb:app_id" content="1727612590830968" />
+  
+  
+
+  <meta property="article:published_time" content="2015-12-15T00:00:00+01:00">
+
+  <link rel="canonical" href="http://madsbuch.com/blog/100-days-of-fibonacci-day-0-haskell/"/>
+  <link rel="shortcut icon" href="/blog/assets/images/favicon.png" type="image/png"/>
+  <link rel="stylesheet" href="//brick.a.ssl.fastly.net/Linux+Libertine:400,400i,700,700i/Open+Sans:400,400i,700,700i">
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" type="text/css" media="screen" href="/blog/css/main.css" />
+  <link rel="stylesheet" type="text/css" media="print" href="/blog/css/print.css" />
+  <link rel="stylesheet" type="text/css" href="/blog/css/extra.css" />
+
+  <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-3209922-9', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</head>
+
+  <body itemscope itemtype="http://schema.org/Article">
+    <!-- header start -->
+
+<a href="http://madsbuch.com/blog" class="logo-readium">
+    <span class="logo" style="background-image: url(/blog/assets/images/logo.png)"></span>
+</a>
+
+<!-- header end -->
+
+    <main class="content" role="main">
+      <article class="post">
+        
+        <div class="noarticleimage">
+          <div class="post-meta">
+            <h1 class="post-title">100 Days of Fibonacci - Day 0, Haskell</h1>
+            <div class="cf post-meta-text">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4 class="author-name" itemprop="author" itemscope itemtype="http://schema.org/Person"></h4>
+              on
+              <time datetime="2015-12-15T00:00:00+01:00">15 Dec 2015</time>
+              <!-- , tagged on <span class="post-tag-">, <a href="/tag/"></a></span> -->
+            </div>
+          </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        
+        <section class="post-content">
+          <div class="post-reading">
+            <span class="post-reading-time"></span> read
+          </div>
+          <a name="topofpage"></a>
+          <p>Today I taught my computer architecture class for the last time.
+My students and I discussed the complexity of the various Fibonacci
+algorithms. Fibonacci is a function often used to test out new
+programming languages as it is easy to implement and can showcase
+many techniques.</p>
+
+<p>Later on I worked with my friend
+<a href="http://www.andersschmidt.com/">Anders Schmidt</a> who showed me 
+Paul Flavius Nechita’s <a href="http://www.100daysui.com/">100 Days UI Challenge</a>.
+I thought it was cool and wanted to do something similar. But
+I do not design.</p>
+
+<p>So I decided to <a href="/blog/100-days-of-fibonacci-overview/">program Fibonacci in 100 different programming languages</a>.
+The idea is to showcase some typical aspects of a programming
+language and implement the function in the different languages idiomatic ways.</p>
+
+<p>As today is the first day of this project I am going to present Fibonacci
+in Haskell. This is mostly because I recently have spend quite some time
+with that language. The formulations of the function is going to be
+by direct recursion and recursion with accumulation.</p>
+
+<h1 id="day-0---haskell">Day 0 - Haskell!</h1>
+<p>Where else would you start? Here we look at Haskell as a practical
+general purpose language.</p>
+
+<p>In Haskell I did two different implementations. First, the
+recursive way, which is the way we usually think of problems in
+a functional context. We use pattern matching to pick out the
+base and induction cases.</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="c1">-- Standard recursive implementation, very slow</span>
+<span class="n">fib</span> <span class="o">::</span> <span class="kt">Integer</span> <span class="o">-&gt;</span> <span class="kt">Integer</span>
+<span class="n">fib</span> <span class="mi">0</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">fib</span> <span class="mi">1</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">fib</span> <span class="n">n</span> <span class="o">=</span> <span class="n">fib</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">fib</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span></code></pre></figure>
+
+<p>However, it turns out that this solution is quite slow due to the
+exponential fanout with the two recursive calls.
+Luckily there is another way! So I implemented it using recursion
+with an accumulator:</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="c1">-- Using an accumulator</span>
+<span class="n">fibAcc</span> <span class="o">::</span> <span class="kt">Integer</span> <span class="o">-&gt;</span> <span class="kt">Integer</span>
+<span class="n">fibAcc</span> <span class="n">n</span> <span class="o">=</span> <span class="n">doFib</span> <span class="n">n</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="kr">where</span>
+        <span class="n">doFib</span> <span class="o">::</span> <span class="kt">Integer</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">Integer</span><span class="p">,</span> <span class="kt">Integer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Integer</span>
+        <span class="n">doFib</span> <span class="mi">0</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="n">doFib</span> <span class="n">n</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="o">=</span> <span class="n">doFib</span> <span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span></code></pre></figure>
+
+<p>To keep the type signature identical to the other Fibonacci
+we uses the <code class="highlighter-rouge">where</code> construction to wrap the actual function.</p>
+
+<p>Lastly we need to make a command line program that takes the number (i.e. <em>n</em>)
+that we want to calculate <script type="math/tex">fib(n)</script> for. As Haskell is pure and lazy, we
+can’t simply in line system calls like we do in c. In Haskell a monadic
+style is chosen.</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="c1">-- First argument is read and parsed as Integer</span>
+<span class="n">main</span> <span class="o">=</span> <span class="kr">do</span>
+    <span class="n">a</span> <span class="o">&lt;-</span> <span class="n">getArgs</span>
+    <span class="n">putStrLn</span> <span class="o">$</span> <span class="n">show</span> <span class="p">(</span><span class="n">fibAcc</span> <span class="o">$</span> <span class="n">read</span> <span class="p">(</span><span class="n">a</span> <span class="o">!!</span> <span class="mi">0</span><span class="p">)</span> <span class="p">)</span></code></pre></figure>
+
+<p>In the above example we first read the list of arguments into
+<code class="highlighter-rouge">a</code>, thereafter we parse the first (0th) element and calculate
+the corresponding Fibonacci number. The result is converted
+to a string and written back to the command line.</p>
+
+<p>Haskell provides two ways to evaluate a program. It has its REPL
+(read-eval-print loop) where the file can be loaded and the
+program can be compiled.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>ghci Fib.hs
+...
+Ok, modules loaded: Main.
+<span class="k">*</span>Main&gt; fib 10
+55
+<span class="k">*</span>Main&gt; fibAcc 10
+55</code></pre></figure>
+
+<p>Alternatively Haskell can be compiled and executed:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>ghc Fib.hs <span class="nt">-o</span> fib
+<span class="nv">$ </span>./fib 10
+55</code></pre></figure>
+
+<p>The file is available for download
+<a href="https://github.com/madsbuch/fibonacci/tree/master/haskell">here</a>.</p>
+
+<h1 id="functional-fibonacci">Functional Fibonacci</h1>
+<p>In this first implementation we used two techniques for implementing
+the Fibonacci function:</p>
+
+<ul>
+  <li><strong>Recursion:</strong> This is the typical way of thinking of problems in a
+functional context. In this case it has a exponential
+time complexity. This is bad, as we know that the Fibonacci
+function can be implemented faster.</li>
+  <li><strong>Recursion with accumulator:</strong> The idea is that we immidiatly
+accumulate partial results into an accumulator which is passed
+on to the next call.
+For Fibonacci we only care about the two
+previous results. This approach lets us forget all intermediate
+results and only pass forward the
+data we need. This lets us achieve a linear time complexity.
+Furthermore many compilers provide tail call optimization. In
+that way we have constant space consumption and do not suffer from
+stack overflows.</li>
+</ul>
+
+<h1 id="haskell">Haskell</h1>
+<p>Here we take offset in Haskell as a general purpose language.
+Among others it is known for its extremely flexible type
+system which enables us to reason quite fine grained about our
+programs.</p>
+
+<p>However, the concerns we have with Haskell here is how well
+it integrates with other lagnauges and the complexity of the output
+code. As seen it is relatively easy to implement a linear
+algorithm of Fibonacci.</p>
+
+<p>Functional programming has in general
+shown good progress in outputting efficient code, and for many
+applications the generally superior readability is better
+than squeezing that last performance out of the CPU.</p>
+
+<p>Haskell integrates well with the rest of the system. This
+example shows the use of command line arguments, which are fairly
+straight forward. Furthermore Haskell supports
+<a href="https://en.wikipedia.org/wiki/Foreign_function_interface">FFI</a> for
+both importing and exporting functions.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+<p>I have elaborated on the Fibonacci implementation and presented it
+by two formulations: Direct recursion and recursion with an accumulator.
+The language to carry the implementation has been Haskell. Haskell
+was presented and swiftly evaluated.</p>
+
+        </section>
+        <footer class="post-footer">
+          <section class="share">
+            
+              
+                <a class="icon-twitter" href="http://twitter.com/share?text=100+Days+of+Fibonacci+-+Day+0%2C+Haskell&amp;url=http://madsbuch.com/blog/100-days-of-fibonacci-day-0-haskell"
+                  onclick="window.open(this.href, 'twitter-share', 'width=550,height=255');return false;">
+                <i class="fa fa-twitter"></i><span class="hidden">twitter</span>
+                </a>
+              
+            
+              
+            
+          </section>
+        </footer>
+        <div class="bottom-teaser cf">
+          <div class="isLeft">
+            <h5 class="index-headline featured"><span>Written by</span></h5>
+            <section class="author">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4>Mads Buch</h4>
+              <p class="bio"></p>
+              <hr>
+              <p class="published">Published <time datetime="2015-12-15 00:00">15 Dec 2015</time></p>
+            </section>
+          </div>
+          
+          <div class="isRight">
+            <h5 class="index-headline featured"><span>Supported by</span></h5>
+            <footer class="site-footer">
+              <section class="poweredby">Proudly published with <a href="http://jekyllrb.com"> Jekyll</a></section>
+              <a class="subscribe" href="/blog/feed.xml"> <span class="tooltip"> <i class="fa fa-rss"></i> You should subscribe to my feed.</span></a>
+              <div class="inner">
+                <section class="copyright">All content copyright <a href="/">Mads Buch</a> &copy; 2019<br>All rights reserved.</section>
+              </div>
+            </footer>
+          </div>
+        </div>
+        
+      </article>
+    </main>
+    <div class="bottom-closer">
+      <div class="background-closer-image"  style="background-image: url(/blog/assets/images/cover.jpg)">
+        Image
+      </div>
+      <div class="inner">
+        <h1 class="blog-title">Mads Buch</h1>
+        <h2 class="blog-description">Technical articles
+</h2>
+        <a href="/blog" class="btn">Back to Overview</a>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="/blog/assets/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/blog/assets/js/index.js"></script>
+<script type="text/javascript" src="/blog/assets/js/readingTime.min.js"></script>
+<script>
+(function ($) {
+  "use strict";
+  $(document).ready(function(){
+
+    var $window = $(window),
+    $image = $('.post-image-image, .teaserimage-image');
+    
+      $window.on('scroll', function() {
+        var top = $window.scrollTop();
+
+        if (top < 0 || top > 1500) { return; }
+        $image
+          .css('transform', 'translate3d(0px, '+top/3+'px, 0px)')
+          .css('opacity', 1-Math.max(top/700, 0));
+      });
+      $window.trigger('scroll');
+
+      var height = $('.article-image').height();
+      $('.post-content').css('padding-top', height + 'px');
+
+      $('a[href*=#]:not([href=#])').click(function() {
+        if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'')
+         && location.hostname == this.hostname) {
+          var target = $(this.hash);
+          target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+          if (target.length) {
+            $('html,body').animate({ scrollTop: target.offset().top }, 500);
+            return false;
+          }
+        }
+      });
+
+  });
+}(jQuery));
+</script>
+
+
+  </body>
+</html>

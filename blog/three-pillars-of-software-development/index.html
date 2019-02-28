@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <!-- (1) Optimize for mobile versions: http://goo.gl/EOpFl -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- (1) force latest IE rendering engine: bit.ly/1c8EiC9 -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <script>
+    // I have moved the blog
+    let url = 'https://blog.madsbuch.com' + window.location.pathname.replace('/blog', '')
+    window.location = url
+  </script>
+
+  <title>The 3 Pillars of Software Development</title>
+  <meta name="description" content="Test driven development is for many programmers a well-known concept.Tests are written, and procedures are implemented trying to satisfy the testsproviding in a little green mark. When the green ma..." />
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@madspbuch" />
+    <meta name="twitter:title" content="The 3 Pillars of Software Development" />
+    <meta name="twitter:image" content="http://madsbuch.com/blog/assets/images/logo.png" />
+    
+    <meta name="twitter:description"  content="Test driven development is for many programmers a well-known concept.Tests are written, and procedures are implemented trying to satisfy the testsproviding in a little green mark. When the green ma..." />
+    
+  
+  
+  <meta property="og:site_name" content="Mads Buch" />
+  <meta property="og:title" content="The 3 Pillars of Software Development"/>
+  
+  <meta property="og:description" content="Test driven development is for many programmers a well-known concept.Tests are written, and procedures are implemented trying to satisfy the testsproviding in a little green mark. When the green ma..." />
+  
+  <meta property="og:image" content="http://madsbuch.com/blog/assets/images/logo.png" />
+  <meta property="og:url" content="http://madsbuch.com/blog/three-pillars-of-software-development/" >
+  <meta property="og:type" content="blog" />
+
+  
+  <meta property="fb:app_id" content="1727612590830968" />
+  
+  
+
+  <meta property="article:published_time" content="2014-10-01T00:00:00+02:00">
+
+  <link rel="canonical" href="http://madsbuch.com/blog/three-pillars-of-software-development/"/>
+  <link rel="shortcut icon" href="/blog/assets/images/favicon.png" type="image/png"/>
+  <link rel="stylesheet" href="//brick.a.ssl.fastly.net/Linux+Libertine:400,400i,700,700i/Open+Sans:400,400i,700,700i">
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" type="text/css" media="screen" href="/blog/css/main.css" />
+  <link rel="stylesheet" type="text/css" media="print" href="/blog/css/print.css" />
+  <link rel="stylesheet" type="text/css" href="/blog/css/extra.css" />
+
+  <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-3209922-9', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</head>
+
+  <body itemscope itemtype="http://schema.org/Article">
+    <!-- header start -->
+
+<a href="http://madsbuch.com/blog" class="logo-readium">
+    <span class="logo" style="background-image: url(/blog/assets/images/logo.png)"></span>
+</a>
+
+<!-- header end -->
+
+    <main class="content" role="main">
+      <article class="post">
+        
+        <div class="noarticleimage">
+          <div class="post-meta">
+            <h1 class="post-title">The 3 Pillars of Software Development</h1>
+            <div class="cf post-meta-text">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4 class="author-name" itemprop="author" itemscope itemtype="http://schema.org/Person"></h4>
+              on
+              <time datetime="2014-10-01T00:00:00+02:00">01 Oct 2014</time>
+              <!-- , tagged on <span class="post-tag-">, <a href="/tag/"></a></span> -->
+            </div>
+          </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        
+        <section class="post-content">
+          <div class="post-reading">
+            <span class="post-reading-time"></span> read
+          </div>
+          <a name="topofpage"></a>
+          <p><em>Test driven development is for many programmers a well-known concept.
+Tests are written, and procedures are implemented trying to satisfy the tests
+providing in a little green mark. When the green mark is not easily obtainable,
+divide and conquer is applied with more and easier tests.
+In this article, I try to decompose the process of testing to that of specifying
+and verifying. I relate this notion to places where verification are
+mathematically used to bind a specification and an implementation.</em></p>
+
+<h2 id="introduction">Introduction</h2>
+<p>In the software development community, it has become obvious that software has to
+be tested. The reasons are in plural: Keeping a maintainable codebase, assurance
+of software correctness, up-to-date documentation, continuous
+<em>something</em><sup id="fnref:cStar"><a href="#fn:cStar" class="footnote">1</a></sup>, etc.</p>
+
+<p>For me, the two most important reasons to do software testing are the following:</p>
+
+<ol>
+  <li>Forced reasoning: To be able to express a specification, knowledge about the
+problem and the problem domain has to be understood.</li>
+  <li>Correctness assurance: Proper tests are an assurance that specifications are
+met. This, among other things, allows for continuous integration which is 
+crucial in projects needing to be flexible.</li>
+</ol>
+
+<h3 id="testing-as-verifying-a-specification">Testing as verifying a specification</h3>
+<p>In the above I did a slight transition from using the term testing to use the
+terms specifying and verifying. Decomposing the testing process quickly
+shows that it consists of two components. First a specification is formulated,
+which is later verified against the actual implementation.</p>
+
+<p>This split is necessary to be able to talk about the process in a broader term.
+Within proven software, specifications are mathematically proven to be
+implemented in a correct manner, hence the term testing is too vague (at least in
+my consciousness) as we do not necessarily test a finite set of the input for a
+given procedure.</p>
+
+<h3 id="the-premises">The premises</h3>
+<p>Implicitly, and now explicitly, I advocate testing. My opinion is that testing
+should take up as many resources as implementing. Of course, this opinion is not
+strict, and many conditions are in play when deciding the number of resources
+spent on verifying code. I trust the reader in knowing when to test. At least,
+it is not the main aim for this article.</p>
+
+<h3 id="examples">Examples</h3>
+<p>I have drawn examples from two worlds: One from the engineering world
+represented by examples in Java. The other one is Coq<sup id="fnref:coq"><a href="#fn:coq" class="footnote">2</a></sup>. Coq is a theorem
+prover performing formal proof verification. That means that we can be sure what
+is expressed also holds.</p>
+
+<h2 id="three-pillars">Three Pillars</h2>
+<p>The premise for the article is now set, and the three pillars can be
+introduced. I will allow to start with the specification. Intuitively it might seem
+more obvious to start with implementation as it is the most commonly thought of
+part of the programming process. But for being able to start implementing, a
+specification of some form must be present, implicitly or explicitly.</p>
+
+<p>After the specification, the implementation is introduced and at least they are
+bound using the verification.</p>
+
+<h3 id="specification">Specification</h3>
+<p>Specifications ranges from the informal human readable text string used to
+specify the name of a test function in a given test suite, to a formal definition.
+No matter by which means the specifications is expressed, the process of
+writing it is still very important. It forces reasoning about the application.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kn">import</span> <span class="nn">org.junit.*</span><span class="o">;</span>
+ 
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">TestAddition</span> <span class="o">{</span>
+  <span class="nd">@Test</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testThatAddAdds</span><span class="o">(){</span>
+    <span class="c1">//[...]</span>
+  <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>The above is an example drawn from Java, where a method is named to specify what
+we are going to test. The function name is here seen as the specification for
+what we are going to verify. It is given that the specification is informally
+defined.</p>
+
+<figure class="highlight"><pre><code class="language-coq" data-lang="coq"><span class="k">Definition</span><span class="w"> </span><span class="no">specification_of_addition</span><span class="w"> </span><span class="o">(</span><span class="no">f</span><span class="p">:</span><span class="w"> </span><span class="no">nat</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="no">nat</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="no">nat</span><span class="o">)</span><span class="w"> </span><span class="p">:=</span><span class="w">
+  </span><span class="o">(</span><span class="kr">forall</span><span class="w"> </span><span class="no">b</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="no">nat</span><span class="o">,</span><span class="w">
+     </span><span class="no">f</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="no">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">b</span><span class="o">)</span><span class="w">
+  </span><span class="o">/\</span><span class="w">
+  </span><span class="o">(</span><span class="kr">forall</span><span class="w"> </span><span class="no">a</span><span class="w"> </span><span class="no">b</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="no">nat</span><span class="o">,</span><span class="w">
+     </span><span class="no">f</span><span class="w"> </span><span class="o">(</span><span class="no">S</span><span class="w"> </span><span class="no">a</span><span class="o">)</span><span class="w"> </span><span class="no">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">f</span><span class="w"> </span><span class="no">a</span><span class="w"> </span><span class="o">(</span><span class="no">S</span><span class="w"> </span><span class="no">b</span><span class="o">)).</span></code></pre></figure>
+
+<p>This example of a specification is, on the other hand, thoroughly expressed in
+a specific syntax.</p>
+
+<p>It should be noted that there is a difference on the two examples. The first one is
+addition in Java’s type system, integers with a given precision. In Coq, we
+show that it holds for all natural numbers.</p>
+
+<h3 id="implementation">Implementation</h3>
+<p>The implementation is, usually, the well-known part. Following is a suggestion
+for some code that implements their specification. So far, though, you only have
+my word that what I have expressed is also what is implemented.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Addition</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kt">int</span> <span class="nf">add</span><span class="o">(</span><span class="kt">int</span> <span class="n">a</span><span class="o">,</span> <span class="kt">int</span> <span class="n">b</span><span class="o">){</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>The Java example should come as no surprise.</p>
+
+<figure class="highlight"><pre><code class="language-coq" data-lang="coq"><span class="k">Fixpoint</span><span class="w"> </span><span class="no">add</span><span class="w"> </span><span class="no">a</span><span class="w"> </span><span class="no">b</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="no">nat</span><span class="w"> </span><span class="p">:=</span><span class="w">
+  </span><span class="kr">match</span><span class="w"> </span><span class="no">a</span><span class="w"> </span><span class="kp">with</span><span class="w">
+    </span><span class="o">|</span><span class="w"> </span><span class="mi">0</span><span class="w">    </span><span class="p">=&gt;</span><span class="w"> </span><span class="no">b</span><span class="w">
+    </span><span class="o">|</span><span class="w"> </span><span class="no">S</span><span class="w"> </span><span class="no">a'</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="no">add</span><span class="w"> </span><span class="no">a'</span><span class="w"> </span><span class="o">(</span><span class="no">S</span><span class="w"> </span><span class="no">b</span><span class="o">)</span><span class="w">
+  </span><span class="kr">end</span><span class="o">.</span></code></pre></figure>
+
+<p>The implementation in Coq is on the other hand not as straight forward. Two type
+constructors are given: <script type="math/tex">S : nat \rightarrow nat</script> and <script type="math/tex">O : nat</script> (which have the
+alias 0). The addition is here build on top of this.</p>
+
+<h3 id="verification">Verification</h3>
+<p>For the last part, we have the verification. Here we bind the implementation to
+the specification.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TestAddition</span> <span class="o">{</span>
+  <span class="nd">@Test</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testThatAddAdds</span><span class="o">(){</span>
+    <span class="c1">//Assignment</span>
+    <span class="n">Addition</span> <span class="n">adder</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Addition</span><span class="o">();</span>
+        
+    <span class="c1">//Action</span>
+    <span class="kt">int</span> <span class="n">shouldBe5</span> <span class="o">=</span> <span class="n">adder</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">),</span>
+        <span class="n">shouldBe7</span> <span class="o">=</span> <span class="n">adder</span><span class="o">.</span><span class="na">add</span><span class="o">(-</span><span class="mi">2</span><span class="o">,</span> <span class="mi">9</span><span class="o">),</span>
+        <span class="n">shouldBe5</span> <span class="o">=</span> <span class="n">adder</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="mi">8</span><span class="o">,</span> <span class="o">-</span><span class="mi">3</span><span class="o">),</span>
+        <span class="n">shouldBeMinus7</span> <span class="o">=</span> <span class="n">adder</span><span class="o">.</span><span class="na">add</span><span class="o">(-</span><span class="mi">4</span><span class="o">,</span> <span class="o">-</span><span class="mi">3</span><span class="o">);</span>
+        
+    <span class="c1">//Assert</span>
+    <span class="n">assertEquals</span><span class="o">(</span><span class="n">shouldBe5</span><span class="o">,</span> <span class="mi">5</span><span class="o">);</span>
+    <span class="n">assertEquals</span><span class="o">(</span><span class="n">shouldBe7</span><span class="o">,</span> <span class="mi">7</span><span class="o">);</span>
+    <span class="n">assertEquals</span><span class="o">(</span><span class="n">shouldBe5</span><span class="o">,</span> <span class="mi">5</span><span class="o">);</span>
+    <span class="n">assertEquals</span><span class="o">(</span><span class="n">shouldBeMinus7</span><span class="o">,</span> <span class="o">-</span><span class="mi">7</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>For the Java, you still have to accept that you only have my word for
+correctness regarding the specification. As the specification is completely
+informal, the assertions is a product of my interpretation of the specification
+and programming skills.</p>
+
+<figure class="highlight"><pre><code class="language-coq" data-lang="coq"><span class="k">Lemma</span><span class="w"> </span><span class="no">add_satisfies_specification_of_addition</span><span class="w"> </span><span class="p">:</span><span class="w">
+  </span><span class="no">specification_of_addition</span><span class="w"> </span><span class="no">add</span><span class="pi">.</span><span class="w">
+</span><span class="k">Proof</span><span class="pi">.</span><span class="w">
+  </span><span class="kp">unfold</span><span class="w"> </span><span class="no">specification_of_addition</span><span class="pi">.</span><span class="w">
+  </span><span class="kp">split</span><span class="pi">.</span><span class="w">
+    </span><span class="kp">intro</span><span class="w"> </span><span class="no">b</span><span class="pi">.</span><span class="w">
+    </span><span class="kp">unfold</span><span class="w"> </span><span class="no">add</span><span class="pi">.</span><span class="w">
+    </span><span class="ne">reflexivity</span><span class="pi">.</span><span class="w">
+    
+    </span><span class="kp">intros</span><span class="w"> </span><span class="no">a</span><span class="w"> </span><span class="no">b</span><span class="pi">.</span><span class="w">
+    </span><span class="kp">induction</span><span class="w"> </span><span class="no">a</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="o">[|</span><span class="no">a'</span><span class="w"> </span><span class="no">IHa'</span><span class="o">].</span><span class="w">
+      </span><span class="kp">unfold</span><span class="w"> </span><span class="no">add</span><span class="pi">.</span><span class="w">
+      </span><span class="ne">reflexivity</span><span class="pi">.</span><span class="w">
+      
+      </span><span class="kp">unfold</span><span class="w"> </span><span class="no">add</span><span class="pi">.</span><span class="w">
+      </span><span class="kp">fold</span><span class="w"> </span><span class="no">add</span><span class="pi">.</span><span class="w">
+      </span><span class="ne">reflexivity</span><span class="pi">.</span><span class="w">
+</span><span class="k">Qed</span><span class="o">.</span></code></pre></figure>
+
+<p>For Coq, on the other hand, the specification are read by the theorem prover.
+Here I provide a <em>certificate</em> that binds the specification to the
+implementation. Coq afterwards verifies that this certificate is valid.</p>
+
+<h2 id="discussion">Discussion</h2>
+<p>This is one way of relating the testing process to the process of building
+formally verified software. Testing should be applied in both cases, as
+specifications need to be verified. This is a tool for humans to verify
+<em>semantic preservation</em> when communicating their thoughts to a computer, hence
+the KISS principle<sup id="fnref:kiss"><a href="#fn:kiss" class="footnote">3</a></sup> applies; It is, after all, simpler to invoke a function
+with a given input and provide the expected result than formulating a formal specification.</p>
+
+<h2 id="further-reading">Further Reading</h2>
+<p>My offset in this article was a basic approach to testing using Java and formal
+verification using Coq. That said, all mainstream languages have their own means
+of testing. For formal verification other tools exist. This is evident from the
+existing project, e.g. the seL4 microkernel does not use Coq for the verification
+part.</p>
+
+<p>Resources for formal verification using Coq are plenty. Some good ones are
+Software Foundations<sup id="fnref:softFound"><a href="#fn:softFound" class="footnote">4</a></sup> and Certified Programming with Dependent
+Types<sup id="fnref:cpdt"><a href="#fn:cpdt" class="footnote">5</a></sup>.</p>
+
+<p>There are also some interesting projects using the formal verification on very
+real problems. The <strong>CompCert</strong><sup id="fnref:CompCert"><a href="#fn:CompCert" class="footnote">6</a></sup> certified compiler is a formally
+proven compiler for C.</p>
+
+<p>In a bigger perspective, the <strong>seL4</strong><sup id="fnref:sel4"><a href="#fn:sel4" class="footnote">7</a></sup> is a formally proven microkernel.</p>
+
+<p>Why are these necessary? one might ask. We have the GNU compiler and Linux. They
+are both stable and performs quite well? The thing is that some applications
+can’t afford that a bug is not found until running that very specific instance
+of code.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+<p>Even though it might seem kind of magic that we can formally verify a piece of
+software, we still have to remember what we verify. We do not verify that the
+software does what it is supposed to do. We verify that the software does
+what we have specified in the specification.</p>
+
+<p>By this, I emphasise the importance of doing simple and easily understandable
+testing, were one can easily verify that the output is correct. I encourage
+people to play with their software and try to break it. After all, they could
+have expressed the specification wrong.</p>
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:cStar">
+      <p>Integration, delivery, deployment, etc. <a href="#fnref:cStar" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:coq">
+      <p><a href="http://coq.inria.fr/">Coq website</a> <a href="#fnref:coq" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:kiss">
+      <p><a href="http://en.wikipedia.org/wiki/KISS_principle">en.wikipedia.org/wiki/KISS_principle</a> <a href="#fnref:kiss" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:softFound">
+      <p>Benjamin C. Pierce et al., <em><a href="http://www.cis.upenn.edu/~bcpierce/sf/current/index.html">Software Foundations </a></em> <a href="#fnref:softFound" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:cpdt">
+      <p>Adam Chlipala, <em><a href="http://adam.chlipala.net/cpdt/">Certified Programming with Dependent Types</a></em> <a href="#fnref:cpdt" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:CompCert">
+      <p><a href="http://compcert.inria.fr/">CompCert website</a> <a href="#fnref:CompCert" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:sel4">
+      <p><a href="http://sel4.systems/">seL4 website</a> <a href="#fnref:sel4" class="reversefootnote">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+        </section>
+        <footer class="post-footer">
+          <section class="share">
+            
+              
+                <a class="icon-twitter" href="http://twitter.com/share?text=The+3+Pillars+of+Software+Development&amp;url=http://madsbuch.com/blog/three-pillars-of-software-development"
+                  onclick="window.open(this.href, 'twitter-share', 'width=550,height=255');return false;">
+                <i class="fa fa-twitter"></i><span class="hidden">twitter</span>
+                </a>
+              
+            
+              
+            
+          </section>
+        </footer>
+        <div class="bottom-teaser cf">
+          <div class="isLeft">
+            <h5 class="index-headline featured"><span>Written by</span></h5>
+            <section class="author">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4>Mads Buch</h4>
+              <p class="bio"></p>
+              <hr>
+              <p class="published">Published <time datetime="2014-10-01 00:00">01 Oct 2014</time></p>
+            </section>
+          </div>
+          
+          <div class="isRight">
+            <h5 class="index-headline featured"><span>Supported by</span></h5>
+            <footer class="site-footer">
+              <section class="poweredby">Proudly published with <a href="http://jekyllrb.com"> Jekyll</a></section>
+              <a class="subscribe" href="/blog/feed.xml"> <span class="tooltip"> <i class="fa fa-rss"></i> You should subscribe to my feed.</span></a>
+              <div class="inner">
+                <section class="copyright">All content copyright <a href="/">Mads Buch</a> &copy; 2019<br>All rights reserved.</section>
+              </div>
+            </footer>
+          </div>
+        </div>
+        
+      </article>
+    </main>
+    <div class="bottom-closer">
+      <div class="background-closer-image"  style="background-image: url(/blog/assets/images/cover.jpg)">
+        Image
+      </div>
+      <div class="inner">
+        <h1 class="blog-title">Mads Buch</h1>
+        <h2 class="blog-description">Technical articles
+</h2>
+        <a href="/blog" class="btn">Back to Overview</a>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="/blog/assets/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/blog/assets/js/index.js"></script>
+<script type="text/javascript" src="/blog/assets/js/readingTime.min.js"></script>
+<script>
+(function ($) {
+  "use strict";
+  $(document).ready(function(){
+
+    var $window = $(window),
+    $image = $('.post-image-image, .teaserimage-image');
+    
+      $window.on('scroll', function() {
+        var top = $window.scrollTop();
+
+        if (top < 0 || top > 1500) { return; }
+        $image
+          .css('transform', 'translate3d(0px, '+top/3+'px, 0px)')
+          .css('opacity', 1-Math.max(top/700, 0));
+      });
+      $window.trigger('scroll');
+
+      var height = $('.article-image').height();
+      $('.post-content').css('padding-top', height + 'px');
+
+      $('a[href*=#]:not([href=#])').click(function() {
+        if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'')
+         && location.hostname == this.hostname) {
+          var target = $(this.hash);
+          target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+          if (target.length) {
+            $('html,body').animate({ scrollTop: target.offset().top }, 500);
+            return false;
+          }
+        }
+      });
+
+  });
+}(jQuery));
+</script>
+
+
+  </body>
+</html>

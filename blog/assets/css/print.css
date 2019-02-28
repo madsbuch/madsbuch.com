@@ -1,0 +1,22 @@
+body {
+    margin: 0 20% 0 20%;
+    font-family: 'latin_modern_roman10_regular';
+}
+
+#post-info h2, .scroll, #comments, footer, a.reversefootnote {
+	display: none;
+}
+
+a {
+	font-family: 'latin_modern_roman10_regular';
+	color: #000;
+	text-decoration:none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'latin_modern_roman10_regular';
+}
+
+header {
+	background-image : none !important;
+}

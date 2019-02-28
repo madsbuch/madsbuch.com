@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <!-- (1) Optimize for mobile versions: http://goo.gl/EOpFl -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- (1) force latest IE rendering engine: bit.ly/1c8EiC9 -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <script>
+    // I have moved the blog
+    let url = 'https://blog.madsbuch.com' + window.location.pathname.replace('/blog', '')
+    window.location = url
+  </script>
+
+  <title>Proving Stuff in Haskell</title>
+  <meta name="description" content="This article is my give on the relationship between mathematical proofs andprogramming languages. Many details on specific implementation have beenleft out with the aim for clarity and conceptual c..." />
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@madspbuch" />
+    <meta name="twitter:title" content="Proving Stuff in Haskell" />
+    <meta name="twitter:image" content="http://madsbuch.com/blog/assets/images/logo.png" />
+    
+    <meta name="twitter:description"  content="This article is my give on the relationship between mathematical proofs andprogramming languages. Many details on specific implementation have beenleft out with the aim for clarity and conceptual c..." />
+    
+  
+  
+  <meta property="og:site_name" content="Mads Buch" />
+  <meta property="og:title" content="Proving Stuff in Haskell"/>
+  
+  <meta property="og:description" content="This article is my give on the relationship between mathematical proofs andprogramming languages. Many details on specific implementation have beenleft out with the aim for clarity and conceptual c..." />
+  
+  <meta property="og:image" content="http://madsbuch.com/blog/assets/images/logo.png" />
+  <meta property="og:url" content="http://madsbuch.com/blog/proving-stuff-in-haskell/" >
+  <meta property="og:type" content="blog" />
+
+  
+  <meta property="fb:app_id" content="1727612590830968" />
+  
+  
+
+  <meta property="article:published_time" content="2016-10-27T00:00:00+02:00">
+
+  <link rel="canonical" href="http://madsbuch.com/blog/proving-stuff-in-haskell/"/>
+  <link rel="shortcut icon" href="/blog/assets/images/favicon.png" type="image/png"/>
+  <link rel="stylesheet" href="//brick.a.ssl.fastly.net/Linux+Libertine:400,400i,700,700i/Open+Sans:400,400i,700,700i">
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" type="text/css" media="screen" href="/blog/css/main.css" />
+  <link rel="stylesheet" type="text/css" media="print" href="/blog/css/print.css" />
+  <link rel="stylesheet" type="text/css" href="/blog/css/extra.css" />
+
+  <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-3209922-9', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</head>
+
+  <body itemscope itemtype="http://schema.org/Article">
+    <!-- header start -->
+
+<a href="http://madsbuch.com/blog" class="logo-readium">
+    <span class="logo" style="background-image: url(/blog/assets/images/logo.png)"></span>
+</a>
+
+<!-- header end -->
+
+    <main class="content" role="main">
+      <article class="post">
+        
+        <div class="noarticleimage">
+          <div class="post-meta">
+            <h1 class="post-title">Proving Stuff in Haskell</h1>
+            <div class="cf post-meta-text">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4 class="author-name" itemprop="author" itemscope itemtype="http://schema.org/Person">Mads Buch</h4>
+              on
+              <time datetime="2016-10-27T00:00:00+02:00">27 Oct 2016</time>
+              <!-- , tagged on <span class="post-tag-">, <a href="/tag/"></a></span> -->
+            </div>
+          </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        
+        <section class="post-content">
+          <div class="post-reading">
+            <span class="post-reading-time"></span> read
+          </div>
+          <a name="topofpage"></a>
+          <p>This article is my give on the relationship between mathematical proofs and
+programming languages. Many details on specific implementation have been
+left out with the aim for clarity and conceptual coherency.</p>
+
+<p>The source used in this article is available as
+<a href="https://gist.github.com/madsbuch/12043c4ad1c1fd0a80008ffb443e29d7">a Gist</a>.</p>
+
+<h1 id="proofs-and-programming">Proofs and Programming</h1>
+<p>First, what is a proof? A proof is a series of deductive arguments, such that
+the proposition is justified. This description might seem quite
+abstract, so let us look at a concrete example using the Peano naturals for
+representing natural numbers.</p>
+
+<script type="math/tex; mode=display">1+1 = 2</script>
+
+<p>As the proposition has no quantifiers, we can directly use the first
+argument to reduce the expression. That is, the one given by the
+usual definition of addition over Peano numbers.
+We then have the following expression.</p>
+
+<script type="math/tex; mode=display">2 = 2</script>
+
+<p>We still have a mathematical object, a propositional claim.
+We know from the Peano axioms, that
+syntactical equivalence satisfies reflexivity, symmetry, and transitivity.
+Henceforth the properties of equality are satisfied, and we may end our
+deductive sequence.</p>
+
+<p>Next, we want to translate above into programming.</p>
+
+<h2 id="in-haskell">In Haskell</h2>
+<p>From the <a href="https://en.wikipedia.org/wiki/Curry%E2%80%93Howard_correspondence">Curry–Howard correspondence</a>
+we know that propositions are types and proofs are programs. Alright, so we
+need to make an expression that has above expression as its type,
+and a program which inhabits this type.</p>
+
+<p>First, we need to define our objects: Peano naturals and Equality. We implement
+Peano naturals the usual way. I elaborate on this in a 
+<a href="/blog/100-days-of-fibonacci-day-9-haskell-types/">previous post</a>.
+Equality is defined as follows.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">data</span> <span class="kt">Refl</span> <span class="n">a</span> <span class="n">b</span> <span class="kr">where</span>
+  <span class="kt">Refl</span> <span class="o">::</span> <span class="kt">Refl</span> <span class="n">a</span> <span class="n">a</span>
+</code></pre></div></div>
+
+<p>Evidently, we the value <code class="highlighter-rouge">Refl</code> can only inhabit the type <code class="highlighter-rouge">Refl a b</code> 
+if the types <code class="highlighter-rouge">a</code> and <code class="highlighter-rouge">b</code> are identical.
+Concerning the Curry-Howard correspondence, the <code class="highlighter-rouge">Refl</code> value also
+has the unit type - it is not possible to attach further data to
+the constructor.</p>
+
+<p>We have defined equality in terms of reflection. However, we need equality
+also to satisfy symmetry and transitivity. In the source, we have the code
+needed for that.</p>
+
+<p>We now want to make the type<sup id="fnref:prefix"><a href="#fn:prefix" class="footnote">1</a></sup> for our proof, or, the equivalent to the 
+proposition stated above:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">onePlusOneEqualsTwo</span> <span class="o">::</span> <span class="kt">Refl</span> <span class="p">(</span><span class="kt">Add</span> <span class="p">(</span><span class="kt">S</span> <span class="kt">Z</span><span class="p">)</span> <span class="p">(</span><span class="kt">S</span> <span class="kt">Z</span><span class="p">))</span> <span class="p">(</span><span class="kt">S</span> <span class="p">(</span><span class="kt">S</span> <span class="kt">Z</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">Add</code> in the type definition is a type family defined in the source. It is
+defined as we would usually define addition over Peano naturals.</p>
+
+<p>To prove it we need to make an inhabitant to that type. The program
+is very simple
+for this case as the Haskell compiler reduces the type level expression 
+per semantics of type families.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">onePlusOneEqualsTwo</span> <span class="o">=</span> <span class="kt">Refl</span>
+</code></pre></div></div>
+
+<p>As it compiles<sup id="fnref:compiler"><a href="#fn:compiler" class="footnote">2</a></sup> it shows that Haskell is content with the proof.</p>
+
+<h1 id="quantifiers">Quantifiers</h1>
+<p>We want to abstract our proofs. In proving terminology, we do this through
+quantifiers.</p>
+
+<p>To have a more graspable problem that includes only quantification,
+without induction, we detour to boolean algebra. Here we can
+try to formalize De Morgan’s theorem:</p>
+
+<script type="math/tex; mode=display">\forall a, b \in : \lnot( a \land b ) = \lnot a \lor  \lnot b</script>
+
+<p>here <em>a</em> and <em>b</em> can only assume two values, <em>true</em> and <em>false</em>.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">deMorgan</span> <span class="o">::</span> <span class="kt">SBool</span> <span class="n">a</span> <span class="o">-&gt;</span> <span class="kt">SBool</span> <span class="n">b</span> <span class="o">-&gt;</span> <span class="kt">Refl</span> <span class="p">(</span><span class="kt">Not</span> <span class="p">(</span><span class="kt">And</span> <span class="n">a</span> <span class="n">b</span><span class="p">))</span> <span class="p">(</span><span class="kt">Or</span> <span class="p">(</span><span class="kt">Not</span> <span class="n">a</span><span class="p">)</span> <span class="p">(</span><span class="kt">Not</span> <span class="n">b</span><span class="p">))</span>
+<span class="n">deMorgan</span> <span class="kt">STrue</span> <span class="kt">STrue</span>   <span class="o">=</span> <span class="kt">Refl</span> <span class="c1">-- The first case</span>
+<span class="n">deMorgan</span> <span class="kt">STrue</span> <span class="kt">SFalse</span>  <span class="o">=</span> <span class="kt">Refl</span>
+<span class="n">deMorgan</span> <span class="kt">SFalse</span> <span class="kt">STrue</span>  <span class="o">=</span> <span class="kt">Refl</span>
+<span class="n">deMorgan</span> <span class="kt">SFalse</span> <span class="kt">SFalse</span> <span class="o">=</span> <span class="kt">Refl</span>
+</code></pre></div></div>
+
+<p>We simply provide an inhabitant to the type based on
+pattern matching. This is the same as proving by case analysis.</p>
+
+<p>To understand what goes on we instantiate the type expression 
+in each case. Afterward, the compiler reduces per the semantics
+of the <code class="highlighter-rouge">Not</code>, <code class="highlighter-rouge">And</code>, and <code class="highlighter-rouge">Or</code> type families. In the first case we instantiate
+the type expression such that.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">deMorgan</span> <span class="o">::</span> <span class="kt">SBool</span> <span class="kt">Tru</span> <span class="o">-&gt;</span> <span class="kt">SBool</span> <span class="kt">Tru</span>
+    <span class="o">-&gt;</span> <span class="kt">Refl</span> <span class="p">(</span><span class="kt">Not</span> <span class="p">(</span><span class="kt">And</span> <span class="kt">Tru</span> <span class="kt">Tru</span><span class="p">))</span> <span class="p">(</span><span class="kt">Or</span> <span class="p">(</span><span class="kt">Not</span> <span class="kt">Tru</span><span class="p">)</span> <span class="p">(</span><span class="kt">Not</span> <span class="kt">Tru</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>This instantiation is from the value <code class="highlighter-rouge">STrue</code> which has the type <code class="highlighter-rouge">SBool Tru</code>.
+The compiler then reduces the expression and derives that
+<code class="highlighter-rouge">Refl :: Refl Fls Fls</code>. From the interpreter, we get that.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*Proof&gt; :t deMorgan STrue STrue
+deMorgan STrue STrue :: Refl 'Fls 'Fls
+</code></pre></div></div>
+
+<h1 id="induction">Induction</h1>
+<p>Many interesting properties we want to reason about includes unbound data.
+That is, the data we think about is inductively defined. We now go back to the
+examples considering natural numbers as they are a good medium for
+discussing inductively defined data.</p>
+
+<p><code class="highlighter-rouge">plus_id_r</code> is the property that adding zero to
+<em>n</em> on the right side is the identity of <em>n</em>. <code class="highlighter-rouge">plus_id_l</code> is when we add 0
+on the left side.</p>
+
+<script type="math/tex; mode=display">n+0 = n \ \text{(plus_id_r)} \\
+    0+n = n \ \text{(plus_id_l)}</script>
+
+<p><code class="highlighter-rouge">plus_id_l</code> is given directly from our definition of addition. But <code class="highlighter-rouge">plus_id_r</code>
+needs to be proven, and we can do this inductively using following code.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plus_id_r</span> <span class="o">::</span> <span class="n">forall</span> <span class="n">n</span><span class="o">.</span> <span class="kt">SNat</span> <span class="n">n</span> <span class="o">-&gt;</span> <span class="kt">Refl</span> <span class="p">(</span><span class="kt">Add</span> <span class="n">n</span> <span class="kt">Z</span><span class="p">)</span>  <span class="n">n</span>
+<span class="n">plus_id_r</span> <span class="kt">Zero</span> <span class="o">=</span> <span class="kt">Refl</span>
+<span class="n">plus_id_r</span> <span class="p">(</span><span class="kt">Succ</span> <span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="n">gcastWith</span> <span class="p">(</span><span class="n">plus_id_r</span> <span class="n">x</span><span class="p">)</span> <span class="kt">Refl</span>
+</code></pre></div></div>
+
+<p>The first case is the base case. We know that the value is <code class="highlighter-rouge">Zero</code> and
+hence we can derive the type to <code class="highlighter-rouge">Z</code>. It is immediately visible that <code class="highlighter-rouge">Refl</code>
+inhabits the type <code class="highlighter-rouge">Refl Z  Z</code>.</p>
+
+<p>The next case is the induction case. Here we fold out the value such that if
+<code class="highlighter-rouge">n = Succ x</code>, then <code class="highlighter-rouge">x = n-1</code> - we reduce this on our argument. We justify that 
+<code class="highlighter-rouge">Refl</code> also is an inhabitant in this case by calling <code class="highlighter-rouge">plus_id_r</code> on the
+reduced value.</p>
+
+<h1 id="discussion">Discussion</h1>
+<p>It is indeed possible to prove stuff in Haskell. But it is not further
+practical. The reason is in particular because the language
+is not designed with
+the constructions we need, such as dependent types. We simulate
+them through GADTs.</p>
+
+<p>The closest languages to Haskell that are suited for
+this is languages such as Idris and Gallina (Coq). They have all the facilities
+needed for incorporating proofs into one’s code.</p>
+
+<p>If one has a software
+development background firmly grounded in OOP (Java, C#), it requires quite
+some time to wrap one’s head around the new way to understand types.</p>
+
+<p>That we can do above is mostly of academic interest: How do make <em>sure</em> that
+certain compilers indeed do what they should do etc. But the techniques are
+becoming steadily more accessible to all programmers.</p>
+
+<p>New languages, like Idris, come with type constructions to formally
+reason about our software.</p>
+
+<h1 id="final-remarks">Final Remarks</h1>
+<p>First, thanks to <a href="http://askarov.net/">Aslan Askarov</a> for providing
+valuable feedback on this article. It has been incorporated to provide a
+more coherent article.</p>
+
+<p>This article was a precursor for a presentation at a
+<a href="http://www.sparetimeteaching.dk/about.php">spare time teaching</a> event
+at Aarhus university. Thanks to them for letting me host the presentation.</p>
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:prefix">
+      <p>We solely use prefix notation to simplify the syntax. <a href="#fnref:prefix" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:compiler">
+      <p>Well, we need to set some compiler flags to make sure that all cases are covered. <a href="#fnref:compiler" class="reversefootnote">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+        </section>
+        <footer class="post-footer">
+          <section class="share">
+            
+              
+                <a class="icon-twitter" href="http://twitter.com/share?text=Proving+Stuff+in+Haskell&amp;url=http://madsbuch.com/blog/proving-stuff-in-haskell"
+                  onclick="window.open(this.href, 'twitter-share', 'width=550,height=255');return false;">
+                <i class="fa fa-twitter"></i><span class="hidden">twitter</span>
+                </a>
+              
+            
+              
+            
+          </section>
+        </footer>
+        <div class="bottom-teaser cf">
+          <div class="isLeft">
+            <h5 class="index-headline featured"><span>Written by</span></h5>
+            <section class="author">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4>Mads Buch</h4>
+              <p class="bio"></p>
+              <hr>
+              <p class="published">Published <time datetime="2016-10-27 00:00">27 Oct 2016</time></p>
+            </section>
+          </div>
+          
+          <div class="isRight">
+            <h5 class="index-headline featured"><span>Supported by</span></h5>
+            <footer class="site-footer">
+              <section class="poweredby">Proudly published with <a href="http://jekyllrb.com"> Jekyll</a></section>
+              <a class="subscribe" href="/blog/feed.xml"> <span class="tooltip"> <i class="fa fa-rss"></i> You should subscribe to my feed.</span></a>
+              <div class="inner">
+                <section class="copyright">All content copyright <a href="/">Mads Buch</a> &copy; 2019<br>All rights reserved.</section>
+              </div>
+            </footer>
+          </div>
+        </div>
+        
+      </article>
+    </main>
+    <div class="bottom-closer">
+      <div class="background-closer-image"  style="background-image: url(/blog/assets/images/cover.jpg)">
+        Image
+      </div>
+      <div class="inner">
+        <h1 class="blog-title">Mads Buch</h1>
+        <h2 class="blog-description">Technical articles
+</h2>
+        <a href="/blog" class="btn">Back to Overview</a>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="/blog/assets/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/blog/assets/js/index.js"></script>
+<script type="text/javascript" src="/blog/assets/js/readingTime.min.js"></script>
+<script>
+(function ($) {
+  "use strict";
+  $(document).ready(function(){
+
+    var $window = $(window),
+    $image = $('.post-image-image, .teaserimage-image');
+    
+      $window.on('scroll', function() {
+        var top = $window.scrollTop();
+
+        if (top < 0 || top > 1500) { return; }
+        $image
+          .css('transform', 'translate3d(0px, '+top/3+'px, 0px)')
+          .css('opacity', 1-Math.max(top/700, 0));
+      });
+      $window.trigger('scroll');
+
+      var height = $('.article-image').height();
+      $('.post-content').css('padding-top', height + 'px');
+
+      $('a[href*=#]:not([href=#])').click(function() {
+        if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'')
+         && location.hostname == this.hostname) {
+          var target = $(this.hash);
+          target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+          if (target.length) {
+            $('html,body').animate({ scrollTop: target.offset().top }, 500);
+            return false;
+          }
+        }
+      });
+
+  });
+}(jQuery));
+</script>
+
+
+  </body>
+</html>

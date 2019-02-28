@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <!-- (1) Optimize for mobile versions: http://goo.gl/EOpFl -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- (1) force latest IE rendering engine: bit.ly/1c8EiC9 -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <script>
+    // I have moved the blog
+    let url = 'https://blog.madsbuch.com' + window.location.pathname.replace('/blog', '')
+    window.location = url
+  </script>
+
+  <title>100 Days of Fibonacci - Day 7, Coq</title>
+  <meta name="description" content="I have been of a couple of days over the Christmas and New Year.But now it is time to start my100 days of Fibonacciproject again." />
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@madspbuch" />
+    <meta name="twitter:title" content="100 Days of Fibonacci - Day 7, Coq" />
+    <meta name="twitter:image" content="http://madsbuch.com/blog/assets/images/logo.png" />
+    
+    <meta name="twitter:description"  content="I have been of a couple of days over the Christmas and New Year.But now it is time to start my100 days of Fibonacciproject again." />
+    
+  
+  
+  <meta property="og:site_name" content="Mads Buch" />
+  <meta property="og:title" content="100 Days of Fibonacci - Day 7, Coq"/>
+  
+  <meta property="og:description" content="I have been of a couple of days over the Christmas and New Year.But now it is time to start my100 days of Fibonacciproject again." />
+  
+  <meta property="og:image" content="http://madsbuch.com/blog/assets/images/logo.png" />
+  <meta property="og:url" content="http://madsbuch.com/blog/100-days-of-fibonacci-day-7-coq/" >
+  <meta property="og:type" content="blog" />
+
+  
+  <meta property="fb:app_id" content="1727612590830968" />
+  
+  
+
+  <meta property="article:published_time" content="2016-01-04T00:00:00+01:00">
+
+  <link rel="canonical" href="http://madsbuch.com/blog/100-days-of-fibonacci-day-7-coq/"/>
+  <link rel="shortcut icon" href="/blog/assets/images/favicon.png" type="image/png"/>
+  <link rel="stylesheet" href="//brick.a.ssl.fastly.net/Linux+Libertine:400,400i,700,700i/Open+Sans:400,400i,700,700i">
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" type="text/css" media="screen" href="/blog/css/main.css" />
+  <link rel="stylesheet" type="text/css" media="print" href="/blog/css/print.css" />
+  <link rel="stylesheet" type="text/css" href="/blog/css/extra.css" />
+
+  <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-3209922-9', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</head>
+
+  <body itemscope itemtype="http://schema.org/Article">
+    <!-- header start -->
+
+<a href="http://madsbuch.com/blog" class="logo-readium">
+    <span class="logo" style="background-image: url(/blog/assets/images/logo.png)"></span>
+</a>
+
+<!-- header end -->
+
+    <main class="content" role="main">
+      <article class="post">
+        
+        <div class="noarticleimage">
+          <div class="post-meta">
+            <h1 class="post-title">100 Days of Fibonacci - Day 7, Coq</h1>
+            <div class="cf post-meta-text">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4 class="author-name" itemprop="author" itemscope itemtype="http://schema.org/Person">Mads Buch</h4>
+              on
+              <time datetime="2016-01-04T00:00:00+01:00">04 Jan 2016</time>
+              <!-- , tagged on <span class="post-tag-">, <a href="/tag/"></a></span> -->
+            </div>
+          </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        
+        <section class="post-content">
+          <div class="post-reading">
+            <span class="post-reading-time"></span> read
+          </div>
+          <a name="topofpage"></a>
+          <p>I have been of a couple of days over the Christmas and New Year.
+But now it is time to start my
+<a href="/blog/100-days-of-fibonacci-overview/">100 days of Fibonacci</a>
+project again.</p>
+
+<p>Today I chose Coq and I decided to look at proving properties about
+programs. The key idea in this post is to prove that two different
+implementations of the Fibonacci function indeed are equivalent.
+Concretely I have chosen the direct recursive and the accumulated
+recursive implementations as the subjects.</p>
+
+<p>These implementations are the same
+as in <a href="/blog/100-days-of-fibonacci-day-0-haskell/">the first article</a>.
+This is done deliberately as they are idiomatic to functional programming.
+Furthermore, they showcase quite well why this has a value. The directly
+recursive implementation is easy to understand and stays close to both
+the definition of Fibonacci and the common understanding of the function.
+On the other hand, the recursive function with the accumulator is harder
+to understand but provides a significant speedup.</p>
+
+<p>In this article, I show that the rest of the program can be indifferent
+to which implementation is in use. This is done by proving theorems, which
+is considerably more time consuming that providing tests. The effort returns
+in favor the strongest guarantee we can have for the property, a mathematical
+proof.</p>
+
+<h1 id="day-7---coq">Day 7 - Coq!</h1>
+<p>As mentioned the two implementations are the directly recursive and
+the recursive with accumulation. These are both implementations we have
+<a href="/blog/100-days-of-fibonacci-day-0-haskell/">seen before</a>.
+But we use them again as they provide a good body for
+showcasing proving program equivalence. Next we have the two implementations.</p>
+
+<figure class="highlight"><pre><code class="language-coq" data-lang="coq"><span class="k">Fixpoint</span><span class="w"> </span><span class="no">fib_direct</span><span class="w"> </span><span class="o">(</span><span class="no">n</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="no">nat</span><span class="o">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="no">nat</span><span class="w"> </span><span class="p">:=</span><span class="w">
+  </span><span class="kr">match</span><span class="w"> </span><span class="no">n</span><span class="w"> </span><span class="kp">with</span><span class="w">
+    </span><span class="o">|</span><span class="w"> </span><span class="mi">0</span><span class="w">    </span><span class="p">=&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w">
+    </span><span class="o">|</span><span class="w"> </span><span class="no">S</span><span class="w"> </span><span class="no">n'</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="kr">match</span><span class="w"> </span><span class="no">n'</span><span class="w"> </span><span class="kp">with</span><span class="w">
+                </span><span class="o">|</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="mi">1</span><span class="w">
+                </span><span class="o">|</span><span class="w"> </span><span class="no">S</span><span class="w"> </span><span class="no">n''</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="no">fib_direct</span><span class="w"> </span><span class="no">n'</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="no">fib_direct</span><span class="w"> </span><span class="no">n''</span><span class="w">
+              </span><span class="kr">end</span><span class="w">
+  </span><span class="kr">end</span><span class="o">.</span></code></pre></figure>
+
+<p>Above is the directly recursive implementation and next is the
+accumulated recursive implementation.</p>
+
+<figure class="highlight"><pre><code class="language-coq" data-lang="coq"><span class="k">Fixpoint</span><span class="w"> </span><span class="no">fib_accumulator</span><span class="w"> </span><span class="o">(</span><span class="no">n</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="no">nat</span><span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="no">a</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="no">nat</span><span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="no">b</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="no">nat</span><span class="o">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="no">nat</span><span class="w"> </span><span class="p">:=</span><span class="w">
+  </span><span class="kr">match</span><span class="w"> </span><span class="no">n</span><span class="w"> </span><span class="kp">with</span><span class="w">
+    </span><span class="o">|</span><span class="w"> </span><span class="mi">0</span><span class="w">      </span><span class="p">=&gt;</span><span class="w"> </span><span class="no">b</span><span class="w">
+    </span><span class="o">|</span><span class="w"> </span><span class="o">(</span><span class="no">S</span><span class="w"> </span><span class="no">n'</span><span class="o">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="no">fib_accumulator</span><span class="w"> </span><span class="no">n'</span><span class="w"> </span><span class="o">(</span><span class="no">a</span><span class="o">+</span><span class="no">b</span><span class="o">)</span><span class="w"> </span><span class="no">a</span><span class="w">
+  </span><span class="kr">end</span><span class="pi">.</span><span class="w">
+</span><span class="c">(* An alias to scrape away unnecessary information *)</span><span class="w">
+</span><span class="k">Definition</span><span class="w"> </span><span class="no">fib_acc</span><span class="w"> </span><span class="o">(</span><span class="no">n</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="no">nat</span><span class="o">)</span><span class="w"> </span><span class="p">:=</span><span class="w"> </span><span class="no">fib_accumulator</span><span class="w"> </span><span class="no">n</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span></code></pre></figure>
+
+<p>The results can be calculated by the <code class="highlighter-rouge">Compute</code> command. It is
+hereafter visible in the <code class="highlighter-rouge">*goals*</code> window (Assuming you use the
+<a href="https://coq.inria.fr/">proof assistant</a>).</p>
+
+<figure class="highlight"><pre><code class="language-coq" data-lang="coq"><span class="k">Compute</span><span class="w"> </span><span class="no">fib_direct</span><span class="w"> </span><span class="mi">10</span><span class="o">.</span><span class="w">
+</span><span class="k">Compute</span><span class="w"> </span><span class="no">fib_acc</span><span class="w"> </span><span class="mi">10</span><span class="o">.</span></code></pre></figure>
+
+<p>A couple of things look a bit different. The function signature looks
+kind of weird. Furthermore, we are doing some kind of match stuff with
+something that looks a bit like numbers.</p>
+
+<p>In the function signature, we use the <code class="highlighter-rouge">Fixpoint</code> to denote a recursive
+function. This is because Coq encodes recursion in its type and
+implement what’s called iso-recursion.</p>
+
+<p>For integers, Coq does not use the regular atomic data types we know from
+ex. Java. Instead, it has (and only has) inductive data types. In these
+<a href="https://en.wikipedia.org/wiki/Peano_axioms">Peano naturals</a> has
+been implemented. This means that zero is represented as <code class="highlighter-rouge">O</code>, one
+as <code class="highlighter-rouge">S O</code>, two as <code class="highlighter-rouge">S (S O)</code> and so forth (this does not implement integers
+but only naturals which is just fine for Fibonacci).</p>
+
+<p>Coq automatically expands syntactic decimal numbers to its
+internal representation. Hence
+5 is just syntactic sugar for <code class="highlighter-rouge">S S S S S O</code>.
+This is the same representation I
+<a href="/blog/100-days-of-fibonacci-day-4-prolog/">implemented in Prolog</a> earlier on.</p>
+
+<p>As usual, the code is available on
+<a href="https://github.com/madsbuch/fibonacci/tree/master/coq">Github</a>.</p>
+
+<p>It is necessary to be able to reduce data to atomic pieces to do the proving
+we want to do. This is to create a total dependency between the type and its
+value. Imagine Java’s <code class="highlighter-rouge">int</code> type. This type holds, at least,
+<script type="math/tex">2^{32}</script> different
+values without the compiler knowing which. In that case, it is not possible to
+reason about the return value of a function, which we need for the next
+section.</p>
+
+<h1 id="coq---proof-assistant">Coq - proof assistant</h1>
+<p>Coq is not meant as a general-purpose programming language. In fact, it is
+a proof assistant. This means that it is not possible to interact with
+the surrounding world. It is not possible to read command line arguments or
+invoke system calls. On the other hand, Coq can prove properties.</p>
+
+<p>In the above we had two different implementations of the Fibonacci
+function. One might wonder whether these functions always return the same
+value. That is, does <code class="highlighter-rouge">fib_direct 10</code> and <code class="highlighter-rouge">fib_acc 10</code> yield the same result?
+This can easily be checked by running the code. The problem is when we
+want to check for all values of <code class="highlighter-rouge">n</code>. Is it true that
+<code class="highlighter-rouge">fib_direct n = fib_acc n</code>? This we can actually prove in Coq, and
+so I have done.</p>
+
+<p>The first step I took to prove equivalence of the implementations was to
+characterize the Fibonacci function.</p>
+
+<figure class="highlight"><pre><code class="language-coq" data-lang="coq"><span class="k">Definition</span><span class="w"> </span><span class="no">specification_of_fibonacci</span><span class="w"> </span><span class="o">(</span><span class="no">f</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="no">nat</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="no">nat</span><span class="o">)</span><span class="w"> </span><span class="p">:=</span><span class="w">
+  </span><span class="no">f</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">
+  </span><span class="o">/\</span><span class="w">
+  </span><span class="no">f</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w">
+  </span><span class="o">/\</span><span class="w">
+  </span><span class="kr">forall</span><span class="w"> </span><span class="no">n</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="no">nat</span><span class="o">,</span><span class="w">
+    </span><span class="no">f</span><span class="w"> </span><span class="o">(</span><span class="no">S</span><span class="w"> </span><span class="o">(</span><span class="no">S</span><span class="w"> </span><span class="no">n</span><span class="o">))</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">f</span><span class="w"> </span><span class="o">(</span><span class="no">S</span><span class="w"> </span><span class="no">n</span><span class="o">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="no">f</span><span class="w"> </span><span class="no">n</span><span class="o">.</span></code></pre></figure>
+
+<p>This is, in fact, a proposition. Is is <em>true</em> if we have a function that behaves
+as the specification. This specification is very close to the directly 
+recursive implementation.</p>
+
+<p>The next thing is to prove that this definition is unambiguous. This means
+that <em>f</em> will behave identical independent to the actual implementation. In
+Coq this looks like following (The whole code is available on
+<a href="https://github.com/madsbuch/fibonacci/blob/master/coq/fib.v">Github</a>).</p>
+
+<figure class="highlight"><pre><code class="language-coq" data-lang="coq"><span class="k">Lemma</span><span class="w"> </span><span class="no">there_is_only_one_fib</span><span class="w"> </span><span class="p">:</span><span class="w">
+  </span><span class="kr">forall</span><span class="w"> </span><span class="no">f1</span><span class="w"> </span><span class="no">f2</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="no">nat</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="no">nat</span><span class="o">,</span><span class="w">
+    </span><span class="no">specification_of_fibonacci</span><span class="w"> </span><span class="no">f1</span><span class="w"> </span><span class="p">-&gt;</span><span class="w">
+    </span><span class="no">specification_of_fibonacci</span><span class="w"> </span><span class="no">f2</span><span class="w"> </span><span class="p">-&gt;</span><span class="w">
+    </span><span class="kr">forall</span><span class="w"> </span><span class="no">n</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="no">nat</span><span class="o">,</span><span class="w">
+      </span><span class="no">f1</span><span class="w"> </span><span class="no">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">f2</span><span class="w"> </span><span class="no">n</span><span class="pi">.</span><span class="w">
+</span><span class="k">Proof</span><span class="pi">.</span><span class="w">
+  </span><span class="kp">unfold</span><span class="w"> </span><span class="no">specification_of_fibonacci</span><span class="pi">.</span><span class="w">
+  </span><span class="kp">intros</span><span class="w"> </span><span class="no">f1</span><span class="w"> </span><span class="no">f2</span><span class="pi">.</span><span class="w">
+  </span><span class="kp">intros</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="no">bc_f1_0</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="no">bc_f1_1</span><span class="w"> </span><span class="no">ic_f1</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">].</span><span class="w"> </span><span class="c">(* Destruct the conjunctive clauses *)</span><span class="w">
+  </span><span class="kp">intros</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="no">bc_f2_0</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="no">bc_f2_1</span><span class="w"> </span><span class="no">ic_f2</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">].</span><span class="w">
+   
+  </span><span class="c">(* strengthening the induction hypothesis *)</span><span class="w">
+  </span><span class="no">assert</span><span class="w"> </span><span class="o">(</span><span class="no">H_fib</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kr">forall</span><span class="w"> </span><span class="no">m</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="no">nat</span><span class="o">,</span><span class="w">
+                    </span><span class="no">f1</span><span class="w"> </span><span class="no">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">f2</span><span class="w"> </span><span class="no">m</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="no">f1</span><span class="w"> </span><span class="o">(</span><span class="no">S</span><span class="w"> </span><span class="no">m</span><span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">f2</span><span class="w"> </span><span class="o">(</span><span class="no">S</span><span class="w"> </span><span class="no">m</span><span class="o">)).</span><span class="w">
+  </span><span class="kp">intro</span><span class="w"> </span><span class="no">m</span><span class="pi">.</span><span class="w">
+  </span><span class="o">...</span><span class="w">
+  </span><span class="kp">apply</span><span class="w"> </span><span class="no">hf</span><span class="pi">.</span><span class="w">
+</span><span class="k">Qed</span><span class="o">.</span></code></pre></figure>
+
+<p>What happens above is that we specify a lemma. Given two functions, that
+both satisfies the specification of the Fibonacci function, they yield the
+same result for all values of <em>n</em>.</p>
+
+<p>After the specification of the lemma, we provide an actual proof. this is a
+series of commands that generates a function which in turn satisfies the <em>type</em>
+of the lemma. This process is somewhat out of scope, and I will look into this
+in another post.</p>
+
+<p>After this, all we need to do is to prove that both the implementations indeed
+satisfies the specification. Hereafter we can use the property that there is
+only one Fibonacci function to prove the equivalence.</p>
+
+<figure class="highlight"><pre><code class="language-coq" data-lang="coq"><span class="k">Lemma</span><span class="w"> </span><span class="no">fib_direct_satisfies_specification</span><span class="w"> </span><span class="p">:</span><span class="w">
+  </span><span class="no">specification_of_fibonacci</span><span class="w"> </span><span class="no">fib_direct</span><span class="pi">.</span><span class="w">
+</span><span class="k">Proof</span><span class="pi">.</span><span class="w">
+</span><span class="o">...</span><span class="w">
+</span><span class="k">Qed</span><span class="pi">.</span><span class="w">
+
+</span><span class="k">Lemma</span><span class="w"> </span><span class="no">fib_acc_satisfies_specification</span><span class="w"> </span><span class="p">:</span><span class="w">
+  </span><span class="no">specification_of_fibonacci</span><span class="w"> </span><span class="no">fib_acc</span><span class="pi">.</span><span class="w">
+</span><span class="k">Proof</span><span class="pi">.</span><span class="w">
+</span><span class="o">...</span><span class="w">
+</span><span class="k">Qed</span><span class="o">.</span></code></pre></figure>
+
+<p>And the proof that they are equivalent</p>
+
+<figure class="highlight"><pre><code class="language-coq" data-lang="coq"><span class="k">Theorem</span><span class="w"> </span><span class="no">fib_direct_is_equivalent_to_fib_acc</span><span class="w"> </span><span class="p">:</span><span class="w">
+  </span><span class="kr">forall</span><span class="w"> </span><span class="no">n</span><span class="p">:</span><span class="w"> </span><span class="no">nat</span><span class="o">,</span><span class="w">
+    </span><span class="no">fib_acc</span><span class="w"> </span><span class="no">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">fib_direct</span><span class="w"> </span><span class="no">n</span><span class="pi">.</span><span class="w">
+</span><span class="k">Proof</span><span class="pi">.</span><span class="w">
+  </span><span class="kp">intros</span><span class="w"> </span><span class="no">n</span><span class="pi">.</span><span class="w">
+  </span><span class="kp">rewrite</span><span class="w"> </span><span class="o">(</span><span class="no">there_is_only_one_fib</span><span class="w"> </span><span class="no">fib_acc</span><span class="w"> 
+                                 </span><span class="no">fib_direct</span><span class="w"> 
+                                 </span><span class="no">fib_acc_satisfies_specification</span><span class="w">
+                                 </span><span class="no">fib_direct_satisfies_specification</span><span class="o">).</span><span class="w">
+  </span><span class="ne">reflexivity</span><span class="pi">.</span><span class="w">
+</span><span class="k">Qed</span><span class="o">.</span></code></pre></figure>
+
+<p>The signature of <code class="highlighter-rouge">there_is_only_one_fib</code> was given above. We
+specialize it with the arguments so we can rewrite our goal.
+The goal is then rewritten with <code class="highlighter-rouge">forall n, fib_acc n = fib_direct n</code>.
+This yields a goal which is trivially true. Namely
+<code class="highlighter-rouge">fib_direct n = fib_direct n</code>.</p>
+
+<p>We are now sure that for any <em>n</em> we can provide to the directly recursive
+implementation of Fibonacci, the other implementation yields the same
+result.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+<p>In this post, I implemented the Fibonacci function in the same way
+as in the first article.
+These are idiomatic to functional programming and as such it makes sense
+to keep using them here.</p>
+
+<p>They key concept introduced here is the notion of proving propositions.
+I proved that the two implementations indeed behave identically. We have
+scratched the surface when it comes to the underlying theory. But
+already saw the fruits of the efforts: The direct implementation is slow
+but easy to understand. The other implementation is faster but slightly more
+complicated. We have used this to prove that they <em>always</em> return the same
+value for the same input.</p>
+
+        </section>
+        <footer class="post-footer">
+          <section class="share">
+            
+              
+                <a class="icon-twitter" href="http://twitter.com/share?text=100+Days+of+Fibonacci+-+Day+7%2C+Coq&amp;url=http://madsbuch.com/blog/100-days-of-fibonacci-day-7-coq"
+                  onclick="window.open(this.href, 'twitter-share', 'width=550,height=255');return false;">
+                <i class="fa fa-twitter"></i><span class="hidden">twitter</span>
+                </a>
+              
+            
+              
+            
+          </section>
+        </footer>
+        <div class="bottom-teaser cf">
+          <div class="isLeft">
+            <h5 class="index-headline featured"><span>Written by</span></h5>
+            <section class="author">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4>Mads Buch</h4>
+              <p class="bio"></p>
+              <hr>
+              <p class="published">Published <time datetime="2016-01-04 00:00">04 Jan 2016</time></p>
+            </section>
+          </div>
+          
+          <div class="isRight">
+            <h5 class="index-headline featured"><span>Supported by</span></h5>
+            <footer class="site-footer">
+              <section class="poweredby">Proudly published with <a href="http://jekyllrb.com"> Jekyll</a></section>
+              <a class="subscribe" href="/blog/feed.xml"> <span class="tooltip"> <i class="fa fa-rss"></i> You should subscribe to my feed.</span></a>
+              <div class="inner">
+                <section class="copyright">All content copyright <a href="/">Mads Buch</a> &copy; 2019<br>All rights reserved.</section>
+              </div>
+            </footer>
+          </div>
+        </div>
+        
+      </article>
+    </main>
+    <div class="bottom-closer">
+      <div class="background-closer-image"  style="background-image: url(/blog/assets/images/cover.jpg)">
+        Image
+      </div>
+      <div class="inner">
+        <h1 class="blog-title">Mads Buch</h1>
+        <h2 class="blog-description">Technical articles
+</h2>
+        <a href="/blog" class="btn">Back to Overview</a>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="/blog/assets/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/blog/assets/js/index.js"></script>
+<script type="text/javascript" src="/blog/assets/js/readingTime.min.js"></script>
+<script>
+(function ($) {
+  "use strict";
+  $(document).ready(function(){
+
+    var $window = $(window),
+    $image = $('.post-image-image, .teaserimage-image');
+    
+      $window.on('scroll', function() {
+        var top = $window.scrollTop();
+
+        if (top < 0 || top > 1500) { return; }
+        $image
+          .css('transform', 'translate3d(0px, '+top/3+'px, 0px)')
+          .css('opacity', 1-Math.max(top/700, 0));
+      });
+      $window.trigger('scroll');
+
+      var height = $('.article-image').height();
+      $('.post-content').css('padding-top', height + 'px');
+
+      $('a[href*=#]:not([href=#])').click(function() {
+        if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'')
+         && location.hostname == this.hostname) {
+          var target = $(this.hash);
+          target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+          if (target.length) {
+            $('html,body').animate({ scrollTop: target.offset().top }, 500);
+            return false;
+          }
+        }
+      });
+
+  });
+}(jQuery));
+</script>
+
+
+  </body>
+</html>

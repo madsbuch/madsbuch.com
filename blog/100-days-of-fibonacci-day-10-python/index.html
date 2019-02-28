@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <!-- (1) Optimize for mobile versions: http://goo.gl/EOpFl -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- (1) force latest IE rendering engine: bit.ly/1c8EiC9 -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <script>
+    // I have moved the blog
+    let url = 'https://blog.madsbuch.com' + window.location.pathname.replace('/blog', '')
+    window.location = url
+  </script>
+
+  <title>100 Days of Fibonacci - Day 10, Python</title>
+  <meta name="description" content="It is yet another time for a post in my100 days of Fibonacci challenge.Today I am containing myself a bit and provide a link betweena concept in programming and its root in mathematics." />
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@madspbuch" />
+    <meta name="twitter:title" content="100 Days of Fibonacci - Day 10, Python" />
+    <meta name="twitter:image" content="http://madsbuch.com/blog/assets/images/logo.png" />
+    
+    <meta name="twitter:description"  content="It is yet another time for a post in my100 days of Fibonacci challenge.Today I am containing myself a bit and provide a link betweena concept in programming and its root in mathematics." />
+    
+  
+  
+  <meta property="og:site_name" content="Mads Buch" />
+  <meta property="og:title" content="100 Days of Fibonacci - Day 10, Python"/>
+  
+  <meta property="og:description" content="It is yet another time for a post in my100 days of Fibonacci challenge.Today I am containing myself a bit and provide a link betweena concept in programming and its root in mathematics." />
+  
+  <meta property="og:image" content="http://madsbuch.com/blog/assets/images/cover.jpg" />
+  <meta property="og:url" content="http://madsbuch.com/blog/100-days-of-fibonacci-day-10-python/" >
+  <meta property="og:type" content="blog" />
+
+  
+  <meta property="fb:app_id" content="1727612590830968" />
+  
+  
+
+  <meta property="article:published_time" content="2016-02-20T00:00:00+01:00">
+
+  <link rel="canonical" href="http://madsbuch.com/blog/100-days-of-fibonacci-day-10-python/"/>
+  <link rel="shortcut icon" href="/blog/assets/images/favicon.png" type="image/png"/>
+  <link rel="stylesheet" href="//brick.a.ssl.fastly.net/Linux+Libertine:400,400i,700,700i/Open+Sans:400,400i,700,700i">
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" type="text/css" media="screen" href="/blog/css/main.css" />
+  <link rel="stylesheet" type="text/css" media="print" href="/blog/css/print.css" />
+  <link rel="stylesheet" type="text/css" href="/blog/css/extra.css" />
+
+  <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-3209922-9', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</head>
+
+  <body itemscope itemtype="http://schema.org/Article">
+    <!-- header start -->
+
+<a href="http://madsbuch.com/blog" class="logo-readium">
+    <span class="logo" style="background-image: url(/blog/assets/images/logo.png)"></span>
+</a>
+
+<!-- header end -->
+
+    <main class="content" role="main">
+      <article class="post">
+        
+        <div class="article-image">
+          <div class="post-image-image" style="background-image: url(/blog/assets/images/cover.jpg)">
+            Article Image
+          </div>
+          <div class="post-image-image2" style="background-image: url(/blog/assets/images/cover.jpg)">
+            Article Image
+          </div>
+          <div class="post-meta">
+            <h1 class="post-title">100 Days of Fibonacci - Day 10, Python</h1>
+            <div class="cf post-meta-text">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4 class="author-name" itemprop="author" itemscope itemtype="http://schema.org/Person">Mads Buch</h4>
+              on
+              <time datetime="2016-02-20 00:00">20 Feb 2016</time>
+              <!-- , tagged on <span class="post-tag-">, <a href="/tag/"></a></span> -->
+            </div>
+            <div style="text-align:center">
+              <a href="#topofpage" class="topofpage"><i class="fa fa-angle-down"></i></a>
+            </div>
+          </div>
+        </div>
+        
+        <section class="post-content">
+          <div class="post-reading">
+            <span class="post-reading-time"></span> read
+          </div>
+          <a name="topofpage"></a>
+          <!--{ Introduction to the project | light informal fun }-->
+<p>It is yet another time for a post in my
+<a href="/blog/100-days-of-fibonacci-overview">100 days of Fibonacci</a> challenge.
+Today I am containing myself a bit and provide a link between
+a concept in programming and its root in mathematics.</p>
+
+<!--{ Introduction to Python | light informal }-->
+<p>The concept is list comprehension in Python. Python is a widely
+used programming language especially used as an easy language
+appropriate for beginners. The languages is in particular
+close to English. Furthermore it enforces good style by scoping by indentation.</p>
+
+<!--{ My take on Fibonacci in python | light informal}-->
+<p>As mentioned I zoom in on the list comprehension feature in
+Python. I relate this feature with the way sets are defined in
+math. Lastly I talk a bit about the interpretation of infinite sets in
+programming.</p>
+
+<!--{ Implementation details of Fibonacci in Python | technical formal }-->
+
+<h1 id="fibonacci-in-python">Fibonacci in Python</h1>
+<!--{ Overview on the Python implementation | }-->
+<p>The implementation is the direct recursive implementation accompanied
+by dynamic programming by momoization. This as
+my <a href="/blog/100-days-of-fibonacci-day-2-java/">Java</a> implementation. It is not
+new to implement it like this, and simply provides a predicate to use in
+the list comprehension.</p>
+
+<figure class="highlight"><pre><code class="language-cs" data-lang="cs"><span class="n">cache</span> <span class="p">=</span> <span class="p">{}</span>
+<span class="n">def</span> <span class="nf">fib</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">cache</span><span class="p">.</span><span class="k">get</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">None</span><span class="p">)</span> <span class="p">!=</span> <span class="n">None</span> <span class="p">:</span>
+        <span class="k">return</span> <span class="n">cache</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">n</span> <span class="p">==</span> <span class="m">0</span> <span class="p">:</span>
+        <span class="k">return</span> <span class="m">0</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="p">==</span> <span class="m">1</span> <span class="p">:</span>
+        <span class="k">return</span> <span class="m">1</span>
+
+    <span class="n">cache</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="p">=</span> <span class="nf">fib</span><span class="p">(</span><span class="n">n</span><span class="p">-</span><span class="m">1</span><span class="p">)</span> <span class="p">+</span> <span class="nf">fib</span><span class="p">(</span><span class="n">n</span><span class="p">-</span><span class="m">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cache</span><span class="p">[</span><span class="n">n</span><span class="p">]</span></code></pre></figure>
+
+<!--{ Justification of the cache | }-->
+<p>The cache is here used as a global variable. Global variables are something one
+should by all means avoid, but here the amount of code is small and the main
+goal of this post is not software architecture.</p>
+
+<!--{ Transition to the list comprehension formulation |  }-->
+<p>From here we can know create the list of the 20 first Fibonacci numbers using
+list comprehension in Python. We print it directly to provide an output.</p>
+
+<figure class="highlight"><pre><code class="language-cs" data-lang="cs"><span class="n">print</span> <span class="p">[</span><span class="nf">fib</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="k">in</span> <span class="nf">range</span><span class="p">(</span><span class="m">20</span><span class="p">)]</span></code></pre></figure>
+
+<p>This is a one-liner for mapping the list of numbers from 0 to 19 to the list
+their corresponding Fibonacci numbers.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>python fib.py 
+<span class="o">[</span>0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, ..., 4181]</code></pre></figure>
+
+<p>The implementation is available from my supporting
+<a href="https://github.com/madsbuch/fibonacci/tree/master/python">Git repository</a>.</p>
+
+<h1 id="list-comprehension">List Comprehension</h1>
+<!--{ Set initial intuition in a for loop | }-->
+<p>The notation used above looks mostly like a very compact <code class="highlighter-rouge">for</code>-loop. For this
+relation to work we need to slightly open up our understanding of lists and
+iteration in programming languages.</p>
+
+<!--{ The new understanding of lists | }-->
+<p>First we need to view a list as a set. It should be quite clear that a list
+indeed can be a set. For that to work we need operations like <em>intersection</em>,
+<em>union</em>, <em>difference</em>, etc. Any programmer should be able to quickly implement
+those. The contrary, that lists are sets, are not given. Lists are inherently
+ordered, where sets are unordered.</p>
+
+<!--{ New understanding of iteration | }-->
+<p>The other thing is the <code class="highlighter-rouge">for</code>-loop. <code class="highlighter-rouge">for</code>-loops are usually viewed as iterating
+all elements in a list one-by-one, and doing something to them. Instead we 
+can see it as quantification. For a second we should forget everything about
+the order of the list and details about iterations, and just see it as we 
+perform an operation on every single element in the <em>set</em>.</p>
+
+<p>We now have the mindset set for the following mathematical interpretation of
+the above list comprehension to work. The following is a direct translation.</p>
+
+<script type="math/tex; mode=display">\{ \ fib(x) \ | \ x \in \{0, 1, 2, 3, 4, 5, ..., 19\} \ \}</script>
+
+<p>which would usually be written as follows.</p>
+
+<script type="math/tex; mode=display">\{ \ fib(x) \ | \ x \in \mathbb{N} \ \}</script>
+
+<p>The reason why the last formulation is kind of futile is that Python
+uses strict evaluation: All terms are evaluated. The set of naturals is
+infinite and hence the computation will not halt.</p>
+
+<p>The last formulation is, however, possible to formulate in programming.
+We just need a lazy evaluated language. As such we can formulate it, and use
+it, in the Haskell programming language. Following works given an
+implementation of the <code class="highlighter-rouge">fib</code> function:</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="p">[</span><span class="n">fib</span> <span class="n">n</span> <span class="o">|</span> <span class="n">n</span> <span class="o">&lt;-</span> <span class="p">[</span><span class="mi">0</span><span class="o">..</span><span class="p">]]</span></code></pre></figure>
+
+<p>And what is all this worth? Well, a lot of material programmers have to
+implement was first formulated in a mathematical language. This relations seeks
+the demystify the relation between programming and math. In fact it can (and
+is / will be in other posts) be argued that math and programming is in fact
+the same thing. But for some reason the two areas are somewhat disjoint. This,
+in my opinion, largely because of two cultures in communicating.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+<!--{ Fibonacci was implemented | }-->
+<p>In this post i implemented Fibonacci in python. There is nothing new to
+the implementation. It was a directly recursive implementation supported
+by a cache for speed.</p>
+
+<!--{ Conclusion of list comprehension | }-->
+<p>The concept elaborated in this post is list comprehension and its relationship
+the the mathematical formulation of sets. Ultimately my message is that we as
+programmers should be able to both formulate and interpret in other frameworks.
+Also those seemingly very distant frameworks, like mathematics is for
+many programmers.</p>
+
+        </section>
+        <footer class="post-footer">
+          <section class="share">
+            
+              
+                <a class="icon-twitter" href="http://twitter.com/share?text=100+Days+of+Fibonacci+-+Day+10%2C+Python&amp;url=http://madsbuch.com/blog/100-days-of-fibonacci-day-10-python"
+                  onclick="window.open(this.href, 'twitter-share', 'width=550,height=255');return false;">
+                <i class="fa fa-twitter"></i><span class="hidden">twitter</span>
+                </a>
+              
+            
+              
+            
+          </section>
+        </footer>
+        <div class="bottom-teaser cf">
+          <div class="isLeft">
+            <h5 class="index-headline featured"><span>Written by</span></h5>
+            <section class="author">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4>Mads Buch</h4>
+              <p class="bio"></p>
+              <hr>
+              <p class="published">Published <time datetime="2016-02-20 00:00">20 Feb 2016</time></p>
+            </section>
+          </div>
+          
+          <div class="isRight">
+            <h5 class="index-headline featured"><span>Supported by</span></h5>
+            <footer class="site-footer">
+              <section class="poweredby">Proudly published with <a href="http://jekyllrb.com"> Jekyll</a></section>
+              <a class="subscribe" href="/blog/feed.xml"> <span class="tooltip"> <i class="fa fa-rss"></i> You should subscribe to my feed.</span></a>
+              <div class="inner">
+                <section class="copyright">All content copyright <a href="/">Mads Buch</a> &copy; 2019<br>All rights reserved.</section>
+              </div>
+            </footer>
+          </div>
+        </div>
+        
+      </article>
+    </main>
+    <div class="bottom-closer">
+      <div class="background-closer-image"  style="background-image: url(/blog/assets/images/cover.jpg)">
+        Image
+      </div>
+      <div class="inner">
+        <h1 class="blog-title">Mads Buch</h1>
+        <h2 class="blog-description">Technical articles
+</h2>
+        <a href="/blog" class="btn">Back to Overview</a>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="/blog/assets/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/blog/assets/js/index.js"></script>
+<script type="text/javascript" src="/blog/assets/js/readingTime.min.js"></script>
+<script>
+(function ($) {
+  "use strict";
+  $(document).ready(function(){
+
+    var $window = $(window),
+    $image = $('.post-image-image, .teaserimage-image');
+    
+      $window.on('scroll', function() {
+        var top = $window.scrollTop();
+
+        if (top < 0 || top > 1500) { return; }
+        $image
+          .css('transform', 'translate3d(0px, '+top/3+'px, 0px)')
+          .css('opacity', 1-Math.max(top/700, 0));
+      });
+      $window.trigger('scroll');
+
+      var height = $('.article-image').height();
+      $('.post-content').css('padding-top', height + 'px');
+
+      $('a[href*=#]:not([href=#])').click(function() {
+        if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'')
+         && location.hostname == this.hostname) {
+          var target = $(this.hash);
+          target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+          if (target.length) {
+            $('html,body').animate({ scrollTop: target.offset().top }, 500);
+            return false;
+          }
+        }
+      });
+
+  });
+}(jQuery));
+</script>
+
+
+  </body>
+</html>

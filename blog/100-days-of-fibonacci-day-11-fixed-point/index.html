@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <!-- (1) Optimize for mobile versions: http://goo.gl/EOpFl -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- (1) force latest IE rendering engine: bit.ly/1c8EiC9 -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <script>
+    // I have moved the blog
+    let url = 'https://blog.madsbuch.com' + window.location.pathname.replace('/blog', '')
+    window.location = url
+  </script>
+
+  <title>100 Days of Fibonacci - Day 11, Fixed Point</title>
+  <meta name="description" content="In this article, we will look into encoding the Fibonacci function using thefix-point combinator. This is an interesting function as it can be usedto implement general recursion in a programming la..." />
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@madspbuch" />
+    <meta name="twitter:title" content="100 Days of Fibonacci - Day 11, Fixed Point" />
+    <meta name="twitter:image" content="http://madsbuch.com/blog/assets/images/logo.png" />
+    
+    <meta name="twitter:description"  content="In this article, we will look into encoding the Fibonacci function using thefix-point combinator. This is an interesting function as it can be usedto implement general recursion in a programming la..." />
+    
+  
+  
+  <meta property="og:site_name" content="Mads Buch" />
+  <meta property="og:title" content="100 Days of Fibonacci - Day 11, Fixed Point"/>
+  
+  <meta property="og:description" content="In this article, we will look into encoding the Fibonacci function using thefix-point combinator. This is an interesting function as it can be usedto implement general recursion in a programming la..." />
+  
+  <meta property="og:image" content="http://madsbuch.com/blog/assets/images/logo.png" />
+  <meta property="og:url" content="http://madsbuch.com/blog/100-days-of-fibonacci-day-11-fixed-point/" >
+  <meta property="og:type" content="blog" />
+
+  
+  <meta property="fb:app_id" content="1727612590830968" />
+  
+  
+
+  <meta property="article:published_time" content="2016-10-11T00:00:00+02:00">
+
+  <link rel="canonical" href="http://madsbuch.com/blog/100-days-of-fibonacci-day-11-fixed-point/"/>
+  <link rel="shortcut icon" href="/blog/assets/images/favicon.png" type="image/png"/>
+  <link rel="stylesheet" href="//brick.a.ssl.fastly.net/Linux+Libertine:400,400i,700,700i/Open+Sans:400,400i,700,700i">
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" type="text/css" media="screen" href="/blog/css/main.css" />
+  <link rel="stylesheet" type="text/css" media="print" href="/blog/css/print.css" />
+  <link rel="stylesheet" type="text/css" href="/blog/css/extra.css" />
+
+  <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-3209922-9', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</head>
+
+  <body itemscope itemtype="http://schema.org/Article">
+    <!-- header start -->
+
+<a href="http://madsbuch.com/blog" class="logo-readium">
+    <span class="logo" style="background-image: url(/blog/assets/images/logo.png)"></span>
+</a>
+
+<!-- header end -->
+
+    <main class="content" role="main">
+      <article class="post">
+        
+        <div class="noarticleimage">
+          <div class="post-meta">
+            <h1 class="post-title">100 Days of Fibonacci - Day 11, Fixed Point</h1>
+            <div class="cf post-meta-text">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4 class="author-name" itemprop="author" itemscope itemtype="http://schema.org/Person"></h4>
+              on
+              <time datetime="2016-10-11T00:00:00+02:00">11 Oct 2016</time>
+              <!-- , tagged on <span class="post-tag-">, <a href="/tag/"></a></span> -->
+            </div>
+          </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        
+        <section class="post-content">
+          <div class="post-reading">
+            <span class="post-reading-time"></span> read
+          </div>
+          <a name="topofpage"></a>
+          <p>In this article, we will look into encoding the Fibonacci function using the
+<code class="highlighter-rouge">fix</code>-point combinator. This is an interesting function as it can be used
+to implement general recursion in a programming language.</p>
+
+<p>To set a context we first need to discuss some programming language
+fundamentals: In daily speech, programmers are used to programming
+languages being express <em>all possible</em> computations. This is, they are
+<a href="https://en.wikipedia.org/wiki/Turing_completeness">Turing complete</a>.</p>
+
+<p>However, often we want a programming language to support various properties.
+Some often discussed properties are
+<a href="https://en.wikipedia.org/wiki/Type_safety">type safety</a>, which entails that
+programs that compile also runs without errors, and
+<a href="https://en.wikipedia.org/wiki/Normalization_property">normalization</a>, which
+roughly says we always get a result.</p>
+
+<p>An often used framework for reasoning about these properties is the
+simply typed lambda calculus (STLC) with friends. With the raw STLC,
+it is not possible to encode general recursion. Hence we need to add
+a friend, which makes it possible.</p>
+
+<p>This friend could be the fixed point operator.</p>
+
+<h1 id="day-11---fix">Day 11 - Fix</h1>
+<p>Generally, the <code class="highlighter-rouge">fix</code> operator looks as follow:</p>
+
+<script type="math/tex; mode=display">y \ f = f \ y \ f</script>
+
+<p>In this article we let Haskell be our syntactical point of view. This is
+because we then will have an interpreter for free.</p>
+
+<p>In the <code class="highlighter-rouge">ghci</code> interpreter we may define the function as follows:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="kr">let</span> <span class="n">fix</span> <span class="n">f</span> <span class="o">=</span> <span class="kr">let</span> <span class="n">x</span> <span class="o">=</span> <span class="n">f</span> <span class="n">x</span> <span class="kr">in</span> <span class="n">x</span>
+</code></pre></div></div>
+
+<p>We now have a function <code class="highlighter-rouge">fix</code> that takes a function as the argument,
+applies it to
+itself and returns the result. If the function we apply <code class="highlighter-rouge">fix</code> on returns a
+value, then fix will return a value:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="n">fix</span> <span class="p">(</span><span class="nf">\</span><span class="n">rec</span> <span class="o">-&gt;</span> <span class="s">"Hello Fix!"</span><span class="p">)</span>
+<span class="s">"Hello fix!"</span>
+</code></pre></div></div>
+
+<p>Next, if we just apply the function on itself we will get an infinite loop:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="n">fix</span> <span class="p">(</span><span class="nf">\</span><span class="n">rec</span> <span class="o">-&gt;</span> <span class="n">rec</span><span class="p">)</span>
+<span class="o">^</span><span class="kt">CInterrupted</span><span class="o">.</span>
+</code></pre></div></div>
+
+<p>Now, this makes sense, as we continuously attempt to apply the lambda function
+on itself.</p>
+
+<p>In above example, we only have a single argument, <code class="highlighter-rouge">n</code>, which is the function
+itself. We can say that we have the recursion directly in our hands. But to
+be able to do something interesting, like calculating the <em>i</em>‘th Fibonacci
+number, we need to add an argument we can decrement on. First a simple
+example.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="n">fix</span> <span class="p">(</span><span class="nf">\</span><span class="n">rec</span> <span class="n">n</span> <span class="o">-&gt;</span> <span class="kr">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span> <span class="kr">then</span> <span class="mi">0</span> <span class="kr">else</span> <span class="n">n</span> <span class="o">+</span> <span class="n">rec</span> <span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="mi">10</span>
+<span class="mi">55</span>
+</code></pre></div></div>
+
+<p>In above example we use the <code class="highlighter-rouge">if</code> to return a value when we hit 0, otherwise
+we apply the function on <em>n-1</em>. The expression simply adds all numbers from
+0 to 10.</p>
+
+<p>From here it is straight forward to implement the Fibonacci function. We need
+to have a nested if-statement, as we have two base cases. Otherwise, it is very
+similar to the function above.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="kr">let</span> <span class="n">fib</span> <span class="o">=</span> <span class="n">fix</span> <span class="p">(</span><span class="nf">\</span><span class="n">rec</span> <span class="n">n</span> <span class="o">-&gt;</span> 
+    <span class="kr">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span> <span class="kr">then</span> <span class="mi">0</span> <span class="kr">else</span> <span class="kr">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span> <span class="kr">then</span> <span class="mi">1</span> <span class="kr">else</span> <span class="n">rec</span> <span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">rec</span> <span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">))</span>
+<span class="o">&gt;</span> <span class="n">fib</span> <span class="mi">10</span>
+<span class="mi">55</span>
+</code></pre></div></div>
+
+<h1 id="reflections">Reflections</h1>
+<p>This is a directly recursive implementation of the Fibonacci function. This is
+indeed visible from time complexity, and it is not feasible to compute the
+Fibonacci number of large numbers. It is indeed possible to augment above
+implementation with an accumulator.</p>
+
+<p>Above implementation is interesting as we completely separate the recursion
+from the actual computation. In
+<a href="/blog/100-days-of-fibonacci-day-0-haskell/">an earlier article</a>,
+I implemented the function in Haskell using normal function syntax. Here the
+distinction between the recursion mechanism and the calculating mechanism is
+not as distinct.</p>
+
+<p>The separation is especially interesting when formally reasoning about
+programming languages as we can get clutter away. This, however, is much
+easier when doing this in dedicated languages.</p>
+
+<p>Above examples are kind of futile in Haskell, as it already supports better
+functionality for solving the Fibonacci function. It is, however, interesting
+to think about what a <em>minimal</em> language for solving the function would be.
+In above implementation, we need support for <code class="highlighter-rouge">fix</code>, <code class="highlighter-rouge">if-then-else</code>, boolean
+constructions, and natural numbers. This is four language constructions.</p>
+
+
+        </section>
+        <footer class="post-footer">
+          <section class="share">
+            
+              
+                <a class="icon-twitter" href="http://twitter.com/share?text=100+Days+of+Fibonacci+-+Day+11%2C+Fixed+Point&amp;url=http://madsbuch.com/blog/100-days-of-fibonacci-day-11--fixed-point"
+                  onclick="window.open(this.href, 'twitter-share', 'width=550,height=255');return false;">
+                <i class="fa fa-twitter"></i><span class="hidden">twitter</span>
+                </a>
+              
+            
+              
+            
+          </section>
+        </footer>
+        <div class="bottom-teaser cf">
+          <div class="isLeft">
+            <h5 class="index-headline featured"><span>Written by</span></h5>
+            <section class="author">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4>Mads Buch</h4>
+              <p class="bio"></p>
+              <hr>
+              <p class="published">Published <time datetime="2016-10-11 00:00">11 Oct 2016</time></p>
+            </section>
+          </div>
+          
+          <div class="isRight">
+            <h5 class="index-headline featured"><span>Supported by</span></h5>
+            <footer class="site-footer">
+              <section class="poweredby">Proudly published with <a href="http://jekyllrb.com"> Jekyll</a></section>
+              <a class="subscribe" href="/blog/feed.xml"> <span class="tooltip"> <i class="fa fa-rss"></i> You should subscribe to my feed.</span></a>
+              <div class="inner">
+                <section class="copyright">All content copyright <a href="/">Mads Buch</a> &copy; 2019<br>All rights reserved.</section>
+              </div>
+            </footer>
+          </div>
+        </div>
+        
+      </article>
+    </main>
+    <div class="bottom-closer">
+      <div class="background-closer-image"  style="background-image: url(/blog/assets/images/cover.jpg)">
+        Image
+      </div>
+      <div class="inner">
+        <h1 class="blog-title">Mads Buch</h1>
+        <h2 class="blog-description">Technical articles
+</h2>
+        <a href="/blog" class="btn">Back to Overview</a>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="/blog/assets/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/blog/assets/js/index.js"></script>
+<script type="text/javascript" src="/blog/assets/js/readingTime.min.js"></script>
+<script>
+(function ($) {
+  "use strict";
+  $(document).ready(function(){
+
+    var $window = $(window),
+    $image = $('.post-image-image, .teaserimage-image');
+    
+      $window.on('scroll', function() {
+        var top = $window.scrollTop();
+
+        if (top < 0 || top > 1500) { return; }
+        $image
+          .css('transform', 'translate3d(0px, '+top/3+'px, 0px)')
+          .css('opacity', 1-Math.max(top/700, 0));
+      });
+      $window.trigger('scroll');
+
+      var height = $('.article-image').height();
+      $('.post-content').css('padding-top', height + 'px');
+
+      $('a[href*=#]:not([href=#])').click(function() {
+        if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'')
+         && location.hostname == this.hostname) {
+          var target = $(this.hash);
+          target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+          if (target.length) {
+            $('html,body').animate({ scrollTop: target.offset().top }, 500);
+            return false;
+          }
+        }
+      });
+
+  });
+}(jQuery));
+</script>
+
+
+  </body>
+</html>

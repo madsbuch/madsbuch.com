@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <!-- (1) Optimize for mobile versions: http://goo.gl/EOpFl -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- (1) force latest IE rendering engine: bit.ly/1c8EiC9 -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <script>
+    // I have moved the blog
+    let url = 'https://blog.madsbuch.com' + window.location.pathname.replace('/blog', '')
+    window.location = url
+  </script>
+
+  <title>A Practical Introduction to Haskell, Part 1</title>
+  <meta name="description" content="This post series provides an introduction to Haskell through apractical example. Itassumes no prior use of the language or functional programming experience.A basic understanding of programming, kn..." />
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@madspbuch" />
+    <meta name="twitter:title" content="A Practical Introduction to Haskell, Part 1" />
+    <meta name="twitter:image" content="http://madsbuch.com/blog/assets/images/logo.png" />
+    
+    <meta name="twitter:description"  content="This post series provides an introduction to Haskell through apractical example. Itassumes no prior use of the language or functional programming experience.A basic understanding of programming, kn..." />
+    
+  
+  
+  <meta property="og:site_name" content="Mads Buch" />
+  <meta property="og:title" content="A Practical Introduction to Haskell, Part 1"/>
+  
+  <meta property="og:description" content="This post series provides an introduction to Haskell through apractical example. Itassumes no prior use of the language or functional programming experience.A basic understanding of programming, kn..." />
+  
+  <meta property="og:image" content="http://madsbuch.com/blog/assets/images/logo.png" />
+  <meta property="og:url" content="http://madsbuch.com/blog/a-practical-introduction-to-haskell-part-1/" >
+  <meta property="og:type" content="blog" />
+
+  
+  <meta property="fb:app_id" content="1727612590830968" />
+  
+  
+
+  <meta property="article:published_time" content="2016-04-08T00:00:00+02:00">
+
+  <link rel="canonical" href="http://madsbuch.com/blog/a-practical-introduction-to-haskell-part-1/"/>
+  <link rel="shortcut icon" href="/blog/assets/images/favicon.png" type="image/png"/>
+  <link rel="stylesheet" href="//brick.a.ssl.fastly.net/Linux+Libertine:400,400i,700,700i/Open+Sans:400,400i,700,700i">
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" type="text/css" media="screen" href="/blog/css/main.css" />
+  <link rel="stylesheet" type="text/css" media="print" href="/blog/css/print.css" />
+  <link rel="stylesheet" type="text/css" href="/blog/css/extra.css" />
+
+  <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-3209922-9', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</head>
+
+  <body itemscope itemtype="http://schema.org/Article">
+    <!-- header start -->
+
+<a href="http://madsbuch.com/blog" class="logo-readium">
+    <span class="logo" style="background-image: url(/blog/assets/images/logo.png)"></span>
+</a>
+
+<!-- header end -->
+
+    <main class="content" role="main">
+      <article class="post">
+        
+        <div class="noarticleimage">
+          <div class="post-meta">
+            <h1 class="post-title">A Practical Introduction to Haskell, Part 1</h1>
+            <div class="cf post-meta-text">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4 class="author-name" itemprop="author" itemscope itemtype="http://schema.org/Person">Mads Buch</h4>
+              on
+              <time datetime="2016-04-08T00:00:00+02:00">08 Apr 2016</time>
+              <!-- , tagged on <span class="post-tag-">, <a href="/tag/"></a></span> -->
+            </div>
+          </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        
+        <section class="post-content">
+          <div class="post-reading">
+            <span class="post-reading-time"></span> read
+          </div>
+          <a name="topofpage"></a>
+          <!--{ Prerequisites for following along | }-->
+<p>This post series provides an introduction to Haskell through a
+practical example. It
+assumes no prior use of the language or functional programming experience.
+A basic understanding of programming, knowledge of using the terminal in Linux,
+and knowing how to install the software is, however, expected.</p>
+
+<!--{ Introduction to the article | grave serious formal }-->
+<p>This tutorial will walk you through setting up the environment using
+<a href="http://haskellstack.org">Haskell Stack</a>, initializing projects, writing
+code, interactively run it, test it, and build / deploy it.</p>
+
+<!--{ Introduction to the mini project | }-->
+<p>As a body of this investigation we are going to develop a little
+interpreter. We will be able to do addition, multiplication, subtraction, 
+and division on floating point numbers. Interpreters and compilers 
+often made in functional programming languages as the paradigm provides
+good tools for working with the structure.</p>
+
+<!--{ Overview of the article | }-->
+<p>A lot of material is presented in this talk. The core elements are as
+follows:</p>
+
+<ol>
+  <li>Motivation. Why even consider functional programming languages?</li>
+  <li>Setting up the environment</li>
+  <li>Functional constructions: Algebraic datatypes and functions</li>
+  <li>Functional way of thinking</li>
+</ol>
+
+<p>In the next (still unpublished) articles we will cover the rest:</p>
+
+<ul>
+  <li>Setting up testing</li>
+  <li>Input/Output</li>
+  <li>Build / Deploying</li>
+</ul>
+
+<p>Everything will be brief, but luckily it is greatly documented.
+So after reading this, if you want to go further, give it away
+and search the Internet!</p>
+
+<h1 id="why-functional-programming">Why Functional programming</h1>
+<p>“I already know Java and it provides a well paying job. Why bother
+spending time on this?”</p>
+
+<!--{ Why other paradigms | }-->
+<p>It shall not be a secret: There exists many paradigms and even more
+ways to solve problems (This is evident from my
+<a href="/blog/100-days-of-fibonacci-overview/">100 days of Fibonacci</a>
+challenge). None of these methods are right or wrong, but some fit better
+in given situations than others.</p>
+
+<!--{ Better programmer | }-->
+<p>My proposition is that people in general become better problem
+solvers / programmers by having multiple perspectives on the problem.
+This is a key assumption for this presentation and can indeed be opposed.
+This is, however, out of scope.</p>
+
+<!--{ Why functional | }-->
+<p>Functional programming is one of the key paradigms. The key benefits of
+functional programming are the inherent tools for securing code correctness
+and very good tools for architecting applications.
+This comes from the use of types. It is furthermore extremely flexible from
+natural use of higher order functions. This allows to build powerful 
+abstractions that are type safe and still intuitive to use.</p>
+
+<h1 id="why-haskell">Why Haskell</h1>
+<!--{ Introduction to Haskell | }-->
+<p>Haskell is a general purpose programming language based in pure
+functional programming. By general purpose it is understood that no
+specific domains of problems, or industries, are targeted rather than
+others. This is evident from its use in everything from webframeworks
+to embedded software development for micro processors and high
+performance scientific computing.</p>
+
+<!--{ Flexibility of Haskell | }-->
+<p>Haskell has mechanism for making embedded domain specific languages
+(EDSL) to target certain tasks. This adds to its flexibility as we
+are able to modify the language <em>syntax</em> to accommodate our needs. This
+is useful if one wants to make a framework for a certain industry or
+class of problems.</p>
+
+<!--{ Haskell's community support | }-->
+<p>The Haskell repositories are also well equipped. We are going to use
+Stackage as we use Stack. Otherwise community packages are usually pulled
+from Hackage.</p>
+
+<!--{ Developer Tool chain for Haskell | }-->
+<p>the Haskell ecosystem is being heavily developed at the moment.
+Especially the tool chain for writing, testing, and deploying code.
+In this post we take offset in Stack. It is a large integrated
+tool which depends on the already wide spread cabal. But enough
+talking. The first thing to get started is to set up the environment
+and get a hold on the first couple of commands.</p>
+
+<h1 id="the-environment">The Environment</h1>
+<!--{ Introduction of Haskell Stack | }-->
+<p>As mentioned we use Stack to manage our environment. Stack
+automatically downloads and sets up the
+right compiler, builds, tests, and makes documentation for the project.
+It is also capable of deploying using docker and much more.</p>
+
+<!--{ Installation of Haskell Stack | }-->
+<p>Stack can be installed on all major platform. Instructions are available
+on the
+<a href="http://docs.haskellstack.org/en/stable/README/#how-to-install">website</a>.</p>
+
+<h2 id="setting-up-a-project">Setting up a Project</h2>
+<p>Having Stack setup we can know create our project. This is done by the
+subcommand <code class="highlighter-rouge">new</code>.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>stack new awesomepreter
+Downloading template ...
+...</code></pre></figure>
+
+<p>Stack creates a new folder, <code class="highlighter-rouge">awesomepreter</code>, and populates it
+with boilerplate code and folders.</p>
+
+<!--{ post setup instructions |  }-->
+<p>After the project was created we are going to make Stack download and setup
+the compilers we need. This is done by <code class="highlighter-rouge">cd</code>-ing into the directory and run the sub command <code class="highlighter-rouge">setup</code>.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    $ cd awesomepreter
+    awesomepreter$ stack setup
+</code></pre></div></div>
+
+<p>We can now run the interpreter, <code class="highlighter-rouge">stack ghci</code>, and test, <code class="highlighter-rouge">stack test</code>. These
+are the only two commands we are using for now.</p>
+
+<p>We furthermore have 3 folders in the newly created project root.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">app</code>:  Contains all code related to the execution. This usually includes
+code for controlling program flow, reading arguments etc.</li>
+  <li><code class="highlighter-rouge">src</code>:  This folder contains all the business logic.</li>
+  <li><code class="highlighter-rouge">test</code>: All our tests are placed in this folder.</li>
+</ul>
+
+<h2 id="packages">Packages</h2>
+<!--{ Introduction to packages |  }-->
+<p>We use packages in order to leverage on the work of other talented people.
+Nobody want to reinvent the deep plate, so we use others inventions.
+Furthermore package systems are also used to organize the code we write.
+For this organizations might setup their own package management systems.</p>
+
+<!--{ What we use | }-->
+<p>For this project we only use a few packages in order to test our code.
+We use <em>HUnit</em> and some supporting packages.</p>
+
+<!--{ How to add packages | }-->
+<p>The packages we need are added by including following in the
+<code class="highlighter-rouge">awesomepreter.cabal</code> file. It has to be added to <code class="highlighter-rouge">build-depends</code> under the
+<code class="highlighter-rouge">test-suite awesomepreter-test</code> section as it is where we use it.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    , HUnit
+    , testpack
+    , test-framework
+    , test-framework-hunit
+</code></pre></div></div>
+
+<!--{ How to apply the changes | }-->
+<p>For the changes to apply to our project we need to ask stack to solve 
+dependencies. This is a rather easy process done with a single command.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    awesomepreter$ stack solver --update-config
+</code></pre></div></div>
+
+<p>From here the packages are available in our test part of the project. But
+before we will start using these packages we will start implementing the
+interpreter.</p>
+
+<h1 id="functional-constructs">Functional Constructs</h1>
+<!--{ We start coding | }-->
+<p>Now the environment is set up for our purposes, and we will return to some
+some programming discussing. For this section we will turn our attention
+on the <code class="highlighter-rouge">src</code> folder, which contains the primary part of our program.</p>
+
+<!--{ Cleanup preparations | }-->
+<p>First thing: A bit of cleanup. In the file <code class="highlighter-rouge">src/Lib.hs</code> we remove the
+string <code class="highlighter-rouge">(someFunc)</code> from the beginning so it says <code class="highlighter-rouge">module Lib where</code>.
+This is because we don’t want to consider the module system at present
+time.</p>
+
+<!--{ Recap on the project we are implementing | }-->
+<p>We can now continue on with the project: We wanted to build an interpreter
+that interprets expressions like <code class="highlighter-rouge">2 + 5</code> and <code class="highlighter-rouge">3 + 7 / 8</code>. To do this
+we consider
+how to model the problem, and how evaluate instances of that model to a
+result. In functional programming we model such things in algebraic
+datatypes (ADT) and implement the evaluation as functions on that datatype.</p>
+
+<h2 id="algebraic-datatypes">Algebraic Datatypes</h2>
+<!--{ How we interpret ADT in this project | }-->
+<p>In this project we see an ADT as a construction which takes an <em>operation</em>
+(the constructor) and some associated data. For the above example, <code class="highlighter-rouge">2 + 5</code>,
+the operation is addition and the data is 2 and 5. Hence we make an addition
+constructor taking the two number: <code class="highlighter-rouge">Add 2 5</code>.</p>
+
+<!--{ Arbitrarily nesting | }-->
+<p>Above is not the whole story as we need to satisfy out types. We want to
+be able to build nested expressions, something like <code class="highlighter-rouge">Add 2 (Add 2 3)</code>. But
+as the number, 2 and 3, have the type <code class="highlighter-rouge">Int</code> and Add has some other type this
+is not possible. To get around this we make a constructor which just hold
+the number: <code class="highlighter-rouge">Lit 4</code>. This is also an inhabitant of the same type as <code class="highlighter-rouge">Add</code>.</p>
+
+<!--{ This is done through ADTs | }-->
+<p>Haskell has ADTs through the <code class="highlighter-rouge">data</code> construction. Such a thing consists
+of a type deceleration and a number of constructors each with some
+associated data.</p>
+
+<!--{ Haskell implementation | }-->
+<p>We implement this in the <code class="highlighter-rouge">src/Lib.hs</code> file. First we change the module
+signature to <code class="highlighter-rouge">module Lib where</code> and then we append the following lines
+of code to the file.</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="kr">data</span> <span class="kt">ALang</span> <span class="o">=</span>
+    <span class="kt">Lit</span> <span class="kt">Float</span>
+  <span class="o">|</span> <span class="kt">Add</span> <span class="kt">ALang</span> <span class="kt">ALang</span>
+  <span class="o">|</span> <span class="kt">Mul</span> <span class="kt">ALang</span> <span class="kt">ALang</span>
+  <span class="o">|</span> <span class="kt">Sub</span> <span class="kt">ALang</span> <span class="kt">ALang</span>
+  <span class="o">|</span> <span class="kt">Div</span> <span class="kt">ALang</span> <span class="kt">ALang</span>
+  <span class="kr">deriving</span> <span class="kt">Show</span></code></pre></figure>
+
+<p>Then open the interpreter by issuing <code class="highlighter-rouge">stack ghci</code> from the project root.</p>
+
+<p>After a bit of compiling a prompt should be visible and ready to take input</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">awesomepreter<span class="nv">$ </span>stack ghci
+...
+Ok, modules loaded: Lib, Main.
+<span class="k">*</span>Main Lib&gt; </code></pre></figure>
+
+<p>Here we can write <code class="highlighter-rouge">Lit 42</code> for which we will see the evaluated result
+<code class="highlighter-rouge">Lit 42.0</code>. Haskell did automatic conversion to floats, hence the trailing
+0.</p>
+
+<p>The <strong>deriving Show</strong> we added in the end of the declaration makes Haskell
+figure out how to show instances of this data type itself.</p>
+
+<h2 id="functions">Functions</h2>
+<p>To perform the actual interpretation of the expression we need to implement
+a function. We want a function that takes an expression as input, and emits
+the result as output.</p>
+
+<!--{ Pattern matching | }-->
+<p>The first construction we hit when defining functions for algebraic
+datatypes is <strong>pattern matching</strong>.</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="n">awesomepret</span> <span class="p">(</span><span class="kt">Lit</span> <span class="n">x</span><span class="p">)</span>     <span class="o">=</span> <span class="n">x</span></code></pre></figure>
+
+<!--{Why pattern matching | }-->
+<p>Pattern matching is used to two things: Unpacking datatypes and making
+specialized functions for each case in the datatype, and providing a way
+to unpack data from constructors. The above
+case is the simplest case, where we simply remove the constructor
+and return the contents.</p>
+
+<!--{ Recursion as iteration | }-->
+<p>In pure functional programming <strong>recursion</strong> is how we provide iteration.
+Where we are normally used to have a language construction to provide this
+functionality, we here implement it on our value-level functions</p>
+
+<p>The this case we have a concrete tree. Each node is an operation and
+the leaves are literals. By recursion we aggregate this tree
+into a single value by using the build-in
+operations form Haskell.</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="n">awesomepret</span> <span class="p">(</span><span class="kt">Add</span> <span class="n">a</span> <span class="n">b</span><span class="p">)</span>   <span class="o">=</span> <span class="p">(</span><span class="n">awesomepret</span> <span class="n">a</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">awesomepret</span> <span class="n">b</span><span class="p">)</span></code></pre></figure>
+
+<p>Th make the expressions easier to use, we can use a <strong>let .. in ..</strong> expression
+to make intermediate values. This makes big expressions easier to read and
+write.</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="n">awesomepret</span> <span class="p">(</span><span class="kt">Mul</span> <span class="n">a</span> <span class="n">b</span><span class="p">)</span>   <span class="o">=</span> <span class="kr">let</span>
+                            <span class="n">ae</span> <span class="o">=</span> <span class="n">awesomepret</span> <span class="n">a</span>
+                            <span class="n">be</span> <span class="o">=</span> <span class="n">awesomepret</span> <span class="n">b</span>
+                          <span class="kr">in</span>
+                             <span class="n">ae</span> <span class="o">*</span> <span class="n">be</span></code></pre></figure>
+
+<p>This naturally leads to the <strong>where</strong>-expression. For our purpose this
+is also an organizational tool. It makes the code easier to read.</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="n">awesomepret</span> <span class="p">(</span><span class="kt">Sub</span> <span class="n">a</span> <span class="n">b</span><span class="p">)</span>   <span class="o">=</span> <span class="n">ae</span> <span class="o">-</span> <span class="n">be</span>
+  <span class="kr">where</span>
+    <span class="n">ae</span> <span class="o">=</span> <span class="n">awesomepret</span> <span class="n">a</span>
+    <span class="n">be</span> <span class="o">=</span> <span class="n">awesomepret</span> <span class="n">b</span></code></pre></figure>
+
+<p>Often we need to do something different based on the value of a variable.
+In this case we need to check if we divide by 0, and throw an exception if
+we do so. In Haskell we can use <strong>guards</strong> for this. This is strictly more elegant than in-lining an <em>if-then-else</em> expression.</p>
+
+<p>In our case we don’t want to allow devision by 0:</p>
+
+<figure class="highlight"><pre><code class="language-haskell" data-lang="haskell"><span class="n">awesomepret</span> <span class="p">(</span><span class="kt">Div</span> <span class="n">a</span> <span class="n">b</span><span class="p">)</span>
+               <span class="o">|</span> <span class="p">(</span><span class="n">awesomepret</span> <span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>    <span class="o">=</span> <span class="ne">error</span> <span class="s">"Division by 0"</span>
+               <span class="o">|</span> <span class="n">otherwise</span>               <span class="o">=</span> <span class="p">(</span><span class="n">awesomepret</span> <span class="n">a</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">awesomepret</span> <span class="n">b</span><span class="p">)</span> </code></pre></figure>
+
+<p>We now have a working interpreter we can use from the Haskell REPL.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>awesomepreter$ stack ghci 
+...
+*Main Lib&gt; awesomepret (Add (Lit 5) (Lit 2))
+7.0
+</code></pre></div></div>
+
+<h1 id="the-functional-way-of-thinking">The Functional Way of Thinking</h1>
+<p>We  now have a working piece of code, and we can try to dissect it to
+figure out how we reasoned to get to this result.</p>
+
+<p>The data we worked on was organized as a tree. In pure functional programming
+everything are trees. Even the program we express is a tree. When executing
+the program these trees are reduced as much as possible. This new tree, 
+often just a singly value, is the result of the computation.</p>
+
+<p>We also see that we have no language constructions. Everything can be put in
+variables and passed around. This provides a high degree of flexibility. We
+have tools for expressing powerful abstractions, but also to make completely
+unreadable code.</p>
+
+<h2 id="to-imperative-languages">To Imperative Languages</h2>
+<p>Coming from an imperative language there are some main differences one should
+have in mind.</p>
+
+<p>There are <strong>no sequential</strong> ordering of expressions. In pure functional
+programming we solely have functions. When we are not able to reduce a
+function expression any further, we have our result. And yes, the result
+is a function. To get greater insight in this the
+<a href="https://en.wikipedia.org/wiki/Lambda_calculus">Lambda Calculus</a> is a
+good starting point.</p>
+
+<p>We also have a whole new vocabulary about functions:</p>
+
+<ul>
+  <li><strong>Higher order function:</strong> Functions can be provided as arguments and
+returned from functions.</li>
+  <li><strong>First class citizen:</strong> Functions are passed around in variables like
+ordinary values.</li>
+  <li><strong>Partial Functions:</strong> In the case of Haskell it means that a function does
+not pattern match on all cases of the datatype.</li>
+</ul>
+
+<p>This vocabulary is also available to mainstream programming languages such
+as Java, C#, etc. But they are central to functional programming.</p>
+
+<p>The last difference to imperative programming is the lack of control
+structures. That’s right, we don’t have any <code class="highlighter-rouge">while</code>-loops,
+<code class="highlighter-rouge">if</code>-expression, etc. But fear not. We can express the same computation
+in functional programming. For the iteration idioms we use recursion
+and for the conditionals we use pattern matching.</p>
+
+<h2 id="what-i-want-vs-what-to-do">What I want vs. What to do</h2>
+<p>When doing imperative programming we have an explicit <em>state</em>. This state
+is concrete variables. When performing computation we modify the state
+in a linear fashion. We might concatenate a couple of strings and add
+some numbers. In the end we return either a value, a pointer to the
+data we made, or nothing. The last case assumes that we did some effect
+full programming and that we are able to read the results from somewhere
+else. This is not how we do when thinking functional programming.</p>
+
+<p>In functional programming we think about what we have and what we want.
+These objects are reasoned about as inhabitants of a type. A type is here 
+understood as set of elements.</p>
+
+<p>A function is a map from one type to another. A whole program is understood
+as a map from some initial element of a given type, to another. This map,
+or function, is in Haskell called <code class="highlighter-rouge">main</code>.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+<p>We have enough to formulate simple expressions and evaluate them in the
+interpreter. Next thing, for practical Haskell programs, is to set up
+automated testing. This is to allow great flexibility in software development.
+After that we also need to think about how users can access the
+functionality we have build. So we look into deploying.</p>
+
+
+        </section>
+        <footer class="post-footer">
+          <section class="share">
+            
+              
+                <a class="icon-twitter" href="http://twitter.com/share?text=A+Practical+Introduction+to+Haskell%2C+Part+1&amp;url=http://madsbuch.com/blog/a-practical-introduction-to-haskell-part-1"
+                  onclick="window.open(this.href, 'twitter-share', 'width=550,height=255');return false;">
+                <i class="fa fa-twitter"></i><span class="hidden">twitter</span>
+                </a>
+              
+            
+              
+            
+          </section>
+        </footer>
+        <div class="bottom-teaser cf">
+          <div class="isLeft">
+            <h5 class="index-headline featured"><span>Written by</span></h5>
+            <section class="author">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4>Mads Buch</h4>
+              <p class="bio"></p>
+              <hr>
+              <p class="published">Published <time datetime="2016-04-08 00:00">08 Apr 2016</time></p>
+            </section>
+          </div>
+          
+          <div class="isRight">
+            <h5 class="index-headline featured"><span>Supported by</span></h5>
+            <footer class="site-footer">
+              <section class="poweredby">Proudly published with <a href="http://jekyllrb.com"> Jekyll</a></section>
+              <a class="subscribe" href="/blog/feed.xml"> <span class="tooltip"> <i class="fa fa-rss"></i> You should subscribe to my feed.</span></a>
+              <div class="inner">
+                <section class="copyright">All content copyright <a href="/">Mads Buch</a> &copy; 2019<br>All rights reserved.</section>
+              </div>
+            </footer>
+          </div>
+        </div>
+        
+      </article>
+    </main>
+    <div class="bottom-closer">
+      <div class="background-closer-image"  style="background-image: url(/blog/assets/images/cover.jpg)">
+        Image
+      </div>
+      <div class="inner">
+        <h1 class="blog-title">Mads Buch</h1>
+        <h2 class="blog-description">Technical articles
+</h2>
+        <a href="/blog" class="btn">Back to Overview</a>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="/blog/assets/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/blog/assets/js/index.js"></script>
+<script type="text/javascript" src="/blog/assets/js/readingTime.min.js"></script>
+<script>
+(function ($) {
+  "use strict";
+  $(document).ready(function(){
+
+    var $window = $(window),
+    $image = $('.post-image-image, .teaserimage-image');
+    
+      $window.on('scroll', function() {
+        var top = $window.scrollTop();
+
+        if (top < 0 || top > 1500) { return; }
+        $image
+          .css('transform', 'translate3d(0px, '+top/3+'px, 0px)')
+          .css('opacity', 1-Math.max(top/700, 0));
+      });
+      $window.trigger('scroll');
+
+      var height = $('.article-image').height();
+      $('.post-content').css('padding-top', height + 'px');
+
+      $('a[href*=#]:not([href=#])').click(function() {
+        if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'')
+         && location.hostname == this.hostname) {
+          var target = $(this.hash);
+          target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+          if (target.length) {
+            $('html,body').animate({ scrollTop: target.offset().top }, 500);
+            return false;
+          }
+        }
+      });
+
+  });
+}(jQuery));
+</script>
+
+
+  </body>
+</html>

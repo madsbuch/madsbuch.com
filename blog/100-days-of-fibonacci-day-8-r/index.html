@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <!-- (1) Optimize for mobile versions: http://goo.gl/EOpFl -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- (1) force latest IE rendering engine: bit.ly/1c8EiC9 -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <script>
+    // I have moved the blog
+    let url = 'https://blog.madsbuch.com' + window.location.pathname.replace('/blog', '')
+    window.location = url
+  </script>
+
+  <title>100 Days of Fibonacci - Day 8, R</title>
+  <meta name="description" content="I looked at quite somedifferent approaches to the Fibonacci function,and I start to wonder how the Fibonacci number develops with respectto its index. To look into this I want to make a 2D plot whe..." />
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@madspbuch" />
+    <meta name="twitter:title" content="100 Days of Fibonacci - Day 8, R" />
+    <meta name="twitter:image" content="http://madsbuch.com/blog/assets/images/logo.png" />
+    
+    <meta name="twitter:description"  content="I looked at quite somedifferent approaches to the Fibonacci function,and I start to wonder how the Fibonacci number develops with respectto its index. To look into this I want to make a 2D plot whe..." />
+    
+  
+  
+  <meta property="og:site_name" content="Mads Buch" />
+  <meta property="og:title" content="100 Days of Fibonacci - Day 8, R"/>
+  
+  <meta property="og:description" content="I looked at quite somedifferent approaches to the Fibonacci function,and I start to wonder how the Fibonacci number develops with respectto its index. To look into this I want to make a 2D plot whe..." />
+  
+  <meta property="og:image" content="http://madsbuch.com/blog/assets/images/logo.png" />
+  <meta property="og:url" content="http://madsbuch.com/blog/100-days-of-fibonacci-day-8-r/" >
+  <meta property="og:type" content="blog" />
+
+  
+  <meta property="fb:app_id" content="1727612590830968" />
+  
+  
+
+  <meta property="article:published_time" content="2016-01-11T00:00:00+01:00">
+
+  <link rel="canonical" href="http://madsbuch.com/blog/100-days-of-fibonacci-day-8-r/"/>
+  <link rel="shortcut icon" href="/blog/assets/images/favicon.png" type="image/png"/>
+  <link rel="stylesheet" href="//brick.a.ssl.fastly.net/Linux+Libertine:400,400i,700,700i/Open+Sans:400,400i,700,700i">
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" type="text/css" media="screen" href="/blog/css/main.css" />
+  <link rel="stylesheet" type="text/css" media="print" href="/blog/css/print.css" />
+  <link rel="stylesheet" type="text/css" href="/blog/css/extra.css" />
+
+  <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-3209922-9', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</head>
+
+  <body itemscope itemtype="http://schema.org/Article">
+    <!-- header start -->
+
+<a href="http://madsbuch.com/blog" class="logo-readium">
+    <span class="logo" style="background-image: url(/blog/assets/images/logo.png)"></span>
+</a>
+
+<!-- header end -->
+
+    <main class="content" role="main">
+      <article class="post">
+        
+        <div class="noarticleimage">
+          <div class="post-meta">
+            <h1 class="post-title">100 Days of Fibonacci - Day 8, R</h1>
+            <div class="cf post-meta-text">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4 class="author-name" itemprop="author" itemscope itemtype="http://schema.org/Person"></h4>
+              on
+              <time datetime="2016-01-11T00:00:00+01:00">11 Jan 2016</time>
+              <!-- , tagged on <span class="post-tag-">, <a href="/tag/"></a></span> -->
+            </div>
+          </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        
+        <section class="post-content">
+          <div class="post-reading">
+            <span class="post-reading-time"></span> read
+          </div>
+          <a name="topofpage"></a>
+          <p>I looked at quite some
+<a href="/blog/100-days-of-fibonacci-overview/">different approaches to the Fibonacci function</a>,
+and I start to wonder how the Fibonacci number develops with respect
+to its index. To look into this I want to make a 2D plot where the X-axis is
+the natural numbers and the Y-axis is the corresponding Fibonacci numbers.</p>
+
+<p>To solve this problem I decided to use R. This is less of an obvious
+solution. Usually one would probably have gone for a spreadsheet, but
+<a href="/blog/100-days-of-fibonacci-day-5-spreadsheet/">already did that</a>.</p>
+
+<p>R is a good tool for doing numeric analysis and prototyping algorithms
+for machine learning. For that it provides good tools for visualizing
+data. This is what I am going to elaborate a bit on here.</p>
+
+<h1 id="day-8---r">Day 8 - R</h1>
+<p>Usually I would have started implementing Fibonacci as a recursive
+function. This was also my first approach and it is certainly
+possible. It is, however, not the idiomatic way. R is an array oriented
+language and as such we work on arrays. Under this paradigm it is better
+to initialize an array, and then populate it with its elements.</p>
+
+<p>The implementation takes offset in a function that takes <em>n</em> as
+input and returns a list of the <em>n</em> first Fibonacci numbers.</p>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">fibList</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">n</span><span class="p">){</span><span class="w">
+  </span><span class="n">theList</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">numeric</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w">
+  </span><span class="n">theList</span><span class="p">[</span><span class="m">1</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="m">1</span><span class="w">
+  </span><span class="n">theList</span><span class="p">[</span><span class="m">2</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="m">1</span><span class="w">
+  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">3</span><span class="o">:</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="n">theList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">theList</span><span class="p">[</span><span class="n">i</span><span class="m">-1</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">theList</span><span class="p">[</span><span class="n">i</span><span class="m">-2</span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+  </span><span class="nf">return</span><span class="p">(</span><span class="n">theList</span><span class="p">);</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span><span class="c1"># Calling the function</span><span class="w">
+</span><span class="n">fibList</span><span class="p">(</span><span class="m">10</span><span class="p">)</span><span class="w">
+</span><span class="n">fibList</span><span class="p">(</span><span class="m">20</span><span class="p">)</span><span class="w">
+</span><span class="n">fibList</span><span class="p">(</span><span class="m">100</span><span class="p">)</span></code></pre></figure>
+
+<p>It was run using the <code class="highlighter-rouge">Rscript</code> command</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">mads@mads:fibonacci<span class="nv">$ </span>Rscript fib.R 
+ <span class="o">[</span>1]  1  1  2  3  5  8 13 21 34 55
+ <span class="o">[</span>1]    1    1    2    3    5    8   13   21   34   55   89  144  233  377  610
+<span class="o">[</span>16]  987 1597 2584 4181 6765
+  <span class="o">[</span>1] 1.000000e+00 1.000000e+00 2.000000e+00 3.000000e+00 5.000000e+00
+  <span class="o">[</span>6] 8.000000e+00 1.300000e+01 2.100000e+01 3.400000e+01 5.500000e+01
+ <span class="o">[</span>11] 8.900000e+01 1.440000e+02 2.330000e+02 3.770000e+02 6.100000e+02
+ <span class="o">[</span>16] 9.870000e+02 1.597000e+03 2.584000e+03 4.181000e+03 6.765000e+03
+ <span class="o">[</span>21] 1.094600e+04 1.771100e+04 2.865700e+04 4.636800e+04 7.502500e+04
+ <span class="o">[</span>26] 1.213930e+05 1.964180e+05 3.178110e+05 5.142290e+05 8.320400e+05
+ <span class="o">[</span>31] 1.346269e+06 2.178309e+06 3.524578e+06 5.702887e+06 9.227465e+06
+ <span class="o">[</span>36] 1.493035e+07 2.415782e+07 3.908817e+07 6.324599e+07 1.023342e+08
+ <span class="o">[</span>41] 1.655801e+08 2.679143e+08 4.334944e+08 7.014087e+08 1.134903e+09
+ <span class="o">[</span>46] 1.836312e+09 2.971215e+09 4.807527e+09 7.778742e+09 1.258627e+10
+ <span class="o">[</span>51] 2.036501e+10 3.295128e+10 5.331629e+10 8.626757e+10 1.395839e+11
+ <span class="o">[</span>56] 2.258514e+11 3.654353e+11 5.912867e+11 9.567220e+11 1.548009e+12
+ <span class="o">[</span>61] 2.504731e+12 4.052740e+12 6.557470e+12 1.061021e+13 1.716768e+13
+ <span class="o">[</span>66] 2.777789e+13 4.494557e+13 7.272346e+13 1.176690e+14 1.903925e+14
+ <span class="o">[</span>71] 3.080615e+14 4.984540e+14 8.065155e+14 1.304970e+15 2.111485e+15
+ <span class="o">[</span>76] 3.416455e+15 5.527940e+15 8.944394e+15 1.447233e+16 2.341673e+16
+ <span class="o">[</span>81] 3.788906e+16 6.130579e+16 9.919485e+16 1.605006e+17 2.596955e+17
+ <span class="o">[</span>86] 4.201961e+17 6.798916e+17 1.100088e+18 1.779979e+18 2.880067e+18
+ <span class="o">[</span>91] 4.660047e+18 7.540114e+18 1.220016e+19 1.974027e+19 3.194043e+19
+ <span class="o">[</span>96] 5.168071e+19 8.362114e+19 1.353019e+20 2.189230e+20 3.542248e+20</code></pre></figure>
+
+<p>When the number is large enough R converts the list into floating point
+numbers. This conversion is mostly OK when working with probabilities, but
+can be fatal when we need the exact result. In above example the last element
+has been cropped. R reports <code class="highlighter-rouge">354224800000000000000</code> while the 100th
+number is <code class="highlighter-rouge">354224848179261915075</code>.</p>
+
+<p>The type conversion does not matter when visualizing. It won’t even mean a
+pixel when plotted on the screen, so we will continue on and try to visualize
+the relationship between <script type="math/tex">n</script> and <script type="math/tex">fib(n)</script>.</p>
+
+<p><img src="/blog/media/2016-01-11-100-days-of-fibonacci-day-8-r/fib.png" alt="100 first Fibonacci numbers." /></p>
+
+<p>The relationship looks much like an exponential development. This, however,
+is a subject for a later article.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+<p>I implemented the recursive edition of the Fibonacci algorithm in R. This
+algorithm is efficient, and R provides efficient subroutines for handling
+the array.</p>
+
+<p>After the implementation a simple plot of the relationship between <script type="math/tex">n</script> and
+<script type="math/tex">fib(n)</script> was plotted. This was easily done in R, as R provides good 
+abstractions for this.</p>
+
+        </section>
+        <footer class="post-footer">
+          <section class="share">
+            
+              
+                <a class="icon-twitter" href="http://twitter.com/share?text=100+Days+of+Fibonacci+-+Day+8%2C+R&amp;url=http://madsbuch.com/blog/100-days-of-fibonacci-day-8-r"
+                  onclick="window.open(this.href, 'twitter-share', 'width=550,height=255');return false;">
+                <i class="fa fa-twitter"></i><span class="hidden">twitter</span>
+                </a>
+              
+            
+              
+            
+          </section>
+        </footer>
+        <div class="bottom-teaser cf">
+          <div class="isLeft">
+            <h5 class="index-headline featured"><span>Written by</span></h5>
+            <section class="author">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4>Mads Buch</h4>
+              <p class="bio"></p>
+              <hr>
+              <p class="published">Published <time datetime="2016-01-11 00:00">11 Jan 2016</time></p>
+            </section>
+          </div>
+          
+          <div class="isRight">
+            <h5 class="index-headline featured"><span>Supported by</span></h5>
+            <footer class="site-footer">
+              <section class="poweredby">Proudly published with <a href="http://jekyllrb.com"> Jekyll</a></section>
+              <a class="subscribe" href="/blog/feed.xml"> <span class="tooltip"> <i class="fa fa-rss"></i> You should subscribe to my feed.</span></a>
+              <div class="inner">
+                <section class="copyright">All content copyright <a href="/">Mads Buch</a> &copy; 2019<br>All rights reserved.</section>
+              </div>
+            </footer>
+          </div>
+        </div>
+        
+      </article>
+    </main>
+    <div class="bottom-closer">
+      <div class="background-closer-image"  style="background-image: url(/blog/assets/images/cover.jpg)">
+        Image
+      </div>
+      <div class="inner">
+        <h1 class="blog-title">Mads Buch</h1>
+        <h2 class="blog-description">Technical articles
+</h2>
+        <a href="/blog" class="btn">Back to Overview</a>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="/blog/assets/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/blog/assets/js/index.js"></script>
+<script type="text/javascript" src="/blog/assets/js/readingTime.min.js"></script>
+<script>
+(function ($) {
+  "use strict";
+  $(document).ready(function(){
+
+    var $window = $(window),
+    $image = $('.post-image-image, .teaserimage-image');
+    
+      $window.on('scroll', function() {
+        var top = $window.scrollTop();
+
+        if (top < 0 || top > 1500) { return; }
+        $image
+          .css('transform', 'translate3d(0px, '+top/3+'px, 0px)')
+          .css('opacity', 1-Math.max(top/700, 0));
+      });
+      $window.trigger('scroll');
+
+      var height = $('.article-image').height();
+      $('.post-content').css('padding-top', height + 'px');
+
+      $('a[href*=#]:not([href=#])').click(function() {
+        if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'')
+         && location.hostname == this.hostname) {
+          var target = $(this.hash);
+          target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+          if (target.length) {
+            $('html,body').animate({ scrollTop: target.offset().top }, 500);
+            return false;
+          }
+        }
+      });
+
+  });
+}(jQuery));
+</script>
+
+
+  </body>
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <!-- (1) Optimize for mobile versions: http://goo.gl/EOpFl -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- (1) force latest IE rendering engine: bit.ly/1c8EiC9 -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <script>
+    // I have moved the blog
+    let url = 'https://blog.madsbuch.com' + window.location.pathname.replace('/blog', '')
+    window.location = url
+  </script>
+
+  <title>The Probability Monad</title>
+  <meta name="description" content="What are the foundational structures of probabilities? How do we designa language making it easy to model probabilistic problems? Oftentimesthe modeling happens directly in terms of vectors and mat..." />
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@madspbuch" />
+    <meta name="twitter:title" content="The Probability Monad" />
+    <meta name="twitter:image" content="http://madsbuch.com/blog/assets/images/logo.png" />
+    
+    <meta name="twitter:description"  content="What are the foundational structures of probabilities? How do we designa language making it easy to model probabilistic problems? Oftentimesthe modeling happens directly in terms of vectors and mat..." />
+    
+  
+  
+  <meta property="og:site_name" content="Mads Buch" />
+  <meta property="og:title" content="The Probability Monad"/>
+  
+  <meta property="og:description" content="What are the foundational structures of probabilities? How do we designa language making it easy to model probabilistic problems? Oftentimesthe modeling happens directly in terms of vectors and mat..." />
+  
+  <meta property="og:image" content="http://madsbuch.com/blog/assets/images/logo.png" />
+  <meta property="og:url" content="http://madsbuch.com/blog/the-probability-monad/" >
+  <meta property="og:type" content="blog" />
+
+  
+  <meta property="fb:app_id" content="1727612590830968" />
+  
+  
+
+  <meta property="article:published_time" content="2016-12-03T00:00:00+01:00">
+
+  <link rel="canonical" href="http://madsbuch.com/blog/the-probability-monad/"/>
+  <link rel="shortcut icon" href="/blog/assets/images/favicon.png" type="image/png"/>
+  <link rel="stylesheet" href="//brick.a.ssl.fastly.net/Linux+Libertine:400,400i,700,700i/Open+Sans:400,400i,700,700i">
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" type="text/css" media="screen" href="/blog/css/main.css" />
+  <link rel="stylesheet" type="text/css" media="print" href="/blog/css/print.css" />
+  <link rel="stylesheet" type="text/css" href="/blog/css/extra.css" />
+
+  <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-3209922-9', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</head>
+
+  <body itemscope itemtype="http://schema.org/Article">
+    <!-- header start -->
+
+<a href="http://madsbuch.com/blog" class="logo-readium">
+    <span class="logo" style="background-image: url(/blog/assets/images/logo.png)"></span>
+</a>
+
+<!-- header end -->
+
+    <main class="content" role="main">
+      <article class="post">
+        
+        <div class="noarticleimage">
+          <div class="post-meta">
+            <h1 class="post-title">The Probability Monad</h1>
+            <div class="cf post-meta-text">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4 class="author-name" itemprop="author" itemscope itemtype="http://schema.org/Person">Mads Buch</h4>
+              on
+              <time datetime="2016-12-03T00:00:00+01:00">03 Dec 2016</time>
+              <!-- , tagged on <span class="post-tag-">, <a href="/tag/"></a></span> -->
+            </div>
+          </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        
+        <section class="post-content">
+          <div class="post-reading">
+            <span class="post-reading-time"></span> read
+          </div>
+          <a name="topofpage"></a>
+          <!-- Why is this interesting? -->
+<p>What are the foundational structures of probabilities? How do we design
+a language making it easy to model probabilistic problems? Oftentimes
+the modeling happens directly in terms of vectors and matrices,
+but there are better ways.</p>
+
+<p>In this article, we explore a structure, the monad, that spans probabilities.
+It is based on the article <em>Stochastic Lambda Calculus and Monads of 
+Probability Distributions</em> by Ramsey and Pfeffer.</p>
+
+<p>The source for this article is available as a
+<a href="https://gist.github.com/madsbuch/5a8a1fc9b70621dd93dd70058754b126">gist on Github</a>.</p>
+
+<h1 id="a-monad">A Monad</h1>
+<p>A monad is a mathematical structure with wide applications in
+functional programming. The reason is that it helps to hide away
+some state and provides primitives for progressing the structure in
+a linear fashion.</p>
+
+<p>It is useful to know about monads. Not just for understanding the probability
+monad, but because they are an important tool to architect applications using
+functional techniques.</p>
+
+<p>A monad is a well-elaborated subject, and as such, I am not elaborating on it
+more than its algebraic structure. To get a proper overview on there exists
+plenty resources.</p>
+
+<p>For our practical use of the monad, we need to implement following functions
+in a way such that they satisfy the monadic laws.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="o">&gt;&gt;=</span><span class="p">)</span>  <span class="o">::</span> <span class="n">m</span> <span class="n">a</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="o">-&gt;</span> <span class="n">m</span> <span class="n">b</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">m</span> <span class="n">b</span> <span class="c1">-- pronounced bind</span>
+<span class="n">return</span> <span class="o">::</span> <span class="n">a</span> <span class="o">-&gt;</span> <span class="n">m</span> <span class="n">a</span>
+</code></pre></div></div>
+
+<p>These are what constitutes monads.</p>
+
+<h1 id="probabilities">Probabilities</h1>
+<p>When talking about events and the probability that they happen we often
+talk in terms of distributions. In its most abstract form a distribution
+is simply a total function, i.e. all inputs need to be mapped to outputs.
+This is also the view we take on it and the monad turns out to be a way of
+packaging these programs to only allow certain operations on them.</p>
+
+<p>We only discuss discrete probability distributions here. This
+makes it considerably easier to reason about but also poses some limitations
+as we can only model continuous distributions to an arbitrary degree.</p>
+
+<p>On the probability distributions, we want to do certain queries. Some often used ones are
+the <code class="highlighter-rouge">expectation</code>, the <code class="highlighter-rouge">support</code>, and the <code class="highlighter-rouge">sample</code> query. The <code class="highlighter-rouge">expectation</code>
+and the <code class="highlighter-rouge">support</code> queries are much easier to think about when only
+considering discrete distributions.</p>
+
+<p>Lastly, we also need an operation for building distributions. In this work,
+we take offset in a single function called <code class="highlighter-rouge">choose</code> which act as a construct
+that binary chooses between two distribution with a certain probability.</p>
+
+<p>To end choosing we use the return construction, which is the same as the Dirac
+distribution. In some papers and languages, Dirac is used as the name for
+return.</p>
+
+<h1 id="class-hierarchy">Class Hierarchy</h1>
+<p>To get an overview of the implementation of the probability monad
+it makes sense to look at the class hierarchy we are considering.</p>
+
+<p>The following figure shows the monads we are implementing.</p>
+
+<svg height="330" width="100%"><defs><marker id="triangle" viewBox="0 0 14 14" refX="0" refY="5" markerUnits="strokeWidth" markerWidth="10" markerHeight="10" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z"></path></marker></defs><line x1="4" x2="12" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="4" y1="8" y2="16" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="8" x2="16" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="16" x2="24" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="24" x2="32" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="32" x2="40" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="40" x2="48" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="48" x2="56" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="56" x2="64" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="64" x2="72" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="72" x2="80" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="80" x2="88" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="88" x2="96" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="96" x2="104" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="104" x2="112" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="112" x2="120" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="120" x2="128" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="128" x2="136" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="136" x2="144" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="144" x2="152" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="152" x2="160" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="160" x2="168" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="168" x2="176" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="176" x2="184" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="184" x2="192" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="192" x2="200" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="200" x2="208" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="208" x2="216" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="216" x2="224" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="224" x2="232" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="232" x2="240" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="240" x2="248" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="248" x2="256" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="256" x2="264" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="264" x2="272" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="272" x2="280" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="280" x2="288" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="288" x2="296" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="296" x2="304" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="304" x2="312" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="312" x2="320" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="320" x2="328" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="328" x2="332" y1="8" y2="8" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="332" x2="332" y1="8" y2="16" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="4" y1="16" y2="32" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="332" x2="332" y1="16" y2="32" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="4" y1="32" y2="48" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><text x="150" y="44" style="font-size:14px;font-family:monospace">M</text><text x="158" y="44" style="font-size:14px;font-family:monospace">o</text><text x="166" y="44" style="font-size:14px;font-family:monospace">n</text><text x="174" y="44" style="font-size:14px;font-family:monospace">a</text><text x="182" y="44" style="font-size:14px;font-family:monospace">d</text><line x1="332" x2="332" y1="32" y2="48" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="4" y1="48" y2="64" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="332" x2="332" y1="48" y2="64" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="4" y1="64" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="12" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="8" x2="16" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="16" x2="24" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="24" x2="32" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="32" x2="40" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="40" x2="48" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="48" x2="56" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="56" x2="64" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="64" x2="72" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="72" x2="80" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="80" x2="88" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="88" x2="96" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="96" x2="104" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="104" x2="112" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="112" x2="120" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="120" x2="128" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="128" x2="136" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="136" x2="144" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="144" x2="152" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="152" x2="160" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="160" x2="168" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="168" x2="172" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="172" x2="180" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="172" x2="172" y1="72" y2="80" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="176" x2="184" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="184" x2="192" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="192" x2="200" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="200" x2="208" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="208" x2="216" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="216" x2="224" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="224" x2="232" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="232" x2="240" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="240" x2="248" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="248" x2="256" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="256" x2="264" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="264" x2="272" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="272" x2="280" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="280" x2="288" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="288" x2="296" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="296" x2="304" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="304" x2="312" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="312" x2="320" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="320" x2="328" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="332" x2="332" y1="64" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="328" x2="332" y1="72" y2="72" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="172" x2="172" y1="80" y2="96" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="172" x2="172" y1="96" y2="112" style="stroke: rgb(0,0,0);stroke-width:1" marker-end="url(#triangle)"></line><line x1="4" x2="12" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="4" y1="120" y2="128" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="8" x2="16" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="16" x2="24" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="24" x2="32" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="32" x2="40" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="40" x2="48" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="48" x2="56" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="56" x2="64" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="64" x2="72" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="72" x2="80" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="80" x2="88" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="88" x2="96" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="96" x2="104" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="104" x2="112" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="112" x2="120" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="120" x2="128" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="128" x2="136" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="136" x2="144" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="144" x2="152" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="152" x2="160" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="160" x2="168" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="168" x2="176" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="176" x2="184" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="184" x2="192" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="192" x2="200" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="200" x2="208" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="208" x2="216" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="216" x2="224" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="224" x2="232" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="232" x2="240" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="240" x2="248" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="248" x2="256" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="256" x2="264" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="264" x2="272" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="272" x2="280" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="280" x2="288" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="288" x2="296" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="296" x2="304" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="304" x2="312" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="312" x2="320" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="320" x2="328" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="328" x2="336" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="336" x2="340" y1="120" y2="120" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="340" x2="340" y1="120" y2="128" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="4" y1="128" y2="144" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="340" x2="340" y1="128" y2="144" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="4" y1="144" y2="160" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><text x="94" y="156" style="font-size:14px;font-family:monospace">P</text><text x="102" y="156" style="font-size:14px;font-family:monospace">r</text><text x="110" y="156" style="font-size:14px;font-family:monospace">o</text><text x="118" y="156" style="font-size:14px;font-family:monospace">b</text><text x="126" y="156" style="font-size:14px;font-family:monospace">a</text><text x="134" y="156" style="font-size:14px;font-family:monospace">b</text><text x="142" y="156" style="font-size:14px;font-family:monospace">i</text><text x="150" y="156" style="font-size:14px;font-family:monospace">l</text><text x="158" y="156" style="font-size:14px;font-family:monospace">i</text><text x="166" y="156" style="font-size:14px;font-family:monospace">t</text><text x="174" y="156" style="font-size:14px;font-family:monospace">y</text><text x="190" y="156" style="font-size:14px;font-family:monospace">M</text><text x="198" y="156" style="font-size:14px;font-family:monospace">o</text><text x="206" y="156" style="font-size:14px;font-family:monospace">n</text><text x="214" y="156" style="font-size:14px;font-family:monospace">a</text><text x="222" y="156" style="font-size:14px;font-family:monospace">d</text><line x1="340" x2="340" y1="144" y2="160" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="4" y1="160" y2="176" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="340" x2="340" y1="160" y2="176" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="4" y1="176" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="12" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="8" x2="16" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="16" x2="24" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="24" x2="32" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="32" x2="40" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="40" x2="48" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="48" x2="56" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="56" x2="60" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="60" x2="68" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="60" x2="60" y1="184" y2="192" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="64" x2="72" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="72" x2="80" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="80" x2="88" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="88" x2="96" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="96" x2="104" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="104" x2="112" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="112" x2="120" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="120" x2="128" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="128" x2="136" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="136" x2="144" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="144" x2="152" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="152" x2="160" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="160" x2="168" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="168" x2="176" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="176" x2="180" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="180" x2="188" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="180" x2="180" y1="184" y2="192" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="184" x2="192" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="192" x2="200" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="200" x2="208" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="208" x2="216" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="216" x2="224" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="224" x2="232" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="232" x2="240" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="240" x2="248" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="248" x2="256" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="256" x2="264" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="264" x2="272" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="272" x2="280" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="280" x2="288" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="288" x2="296" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="296" x2="300" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="300" x2="308" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="300" x2="300" y1="184" y2="192" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="304" x2="312" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="312" x2="320" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="320" x2="328" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="328" x2="336" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="340" x2="340" y1="176" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="336" x2="340" y1="184" y2="184" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="60" x2="60" y1="192" y2="208" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="180" x2="180" y1="192" y2="208" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="300" x2="300" y1="192" y2="208" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="60" x2="60" y1="208" y2="224" style="stroke: rgb(0,0,0);stroke-width:1" marker-end="url(#triangle)"></line><line x1="180" x2="180" y1="208" y2="224" style="stroke: rgb(0,0,0);stroke-width:1" marker-end="url(#triangle)"></line><line x1="300" x2="300" y1="208" y2="224" style="stroke: rgb(0,0,0);stroke-width:1" marker-end="url(#triangle)"></line><line x1="4" x2="12" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="4" y1="232" y2="240" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="8" x2="16" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="16" x2="24" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="24" x2="32" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="32" x2="40" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="40" x2="48" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="48" x2="56" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="56" x2="64" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="64" x2="72" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="72" x2="80" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="80" x2="88" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="88" x2="96" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="96" x2="104" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="104" x2="112" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="112" x2="116" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="116" x2="116" y1="232" y2="240" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="140" x2="148" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="140" x2="140" y1="232" y2="240" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="144" x2="152" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="152" x2="160" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="160" x2="168" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="168" x2="176" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="176" x2="184" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="184" x2="192" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="192" x2="200" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="200" x2="208" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="208" x2="216" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="216" x2="220" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="220" x2="220" y1="232" y2="240" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="244" x2="252" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="244" x2="244" y1="232" y2="240" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="248" x2="256" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="256" x2="264" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="264" x2="272" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="272" x2="280" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="280" x2="288" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="288" x2="296" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="296" x2="304" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="304" x2="312" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="312" x2="320" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="320" x2="328" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="328" x2="336" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="336" x2="340" y1="232" y2="232" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="340" x2="340" y1="232" y2="240" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="4" y1="240" y2="256" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="116" x2="116" y1="240" y2="256" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="140" x2="140" y1="240" y2="256" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="220" x2="220" y1="240" y2="256" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="244" x2="244" y1="240" y2="256" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="340" x2="340" y1="240" y2="256" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="4" y1="256" y2="272" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><text x="14" y="268" style="font-size:14px;font-family:monospace">E</text><text x="22" y="268" style="font-size:14px;font-family:monospace">x</text><text x="30" y="268" style="font-size:14px;font-family:monospace">p</text><text x="38" y="268" style="font-size:14px;font-family:monospace">e</text><text x="46" y="268" style="font-size:14px;font-family:monospace">c</text><text x="54" y="268" style="font-size:14px;font-family:monospace">t</text><text x="62" y="268" style="font-size:14px;font-family:monospace">a</text><text x="70" y="268" style="font-size:14px;font-family:monospace">t</text><text x="78" y="268" style="font-size:14px;font-family:monospace">i</text><text x="86" y="268" style="font-size:14px;font-family:monospace">o</text><text x="94" y="268" style="font-size:14px;font-family:monospace">n</text><line x1="116" x2="116" y1="256" y2="272" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="140" x2="140" y1="256" y2="272" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><text x="150" y="268" style="font-size:14px;font-family:monospace">S</text><text x="158" y="268" style="font-size:14px;font-family:monospace">u</text><text x="166" y="268" style="font-size:14px;font-family:monospace">p</text><text x="174" y="268" style="font-size:14px;font-family:monospace">p</text><text x="182" y="268" style="font-size:14px;font-family:monospace">o</text><text x="190" y="268" style="font-size:14px;font-family:monospace">r</text><text x="198" y="268" style="font-size:14px;font-family:monospace">t</text><line x1="220" x2="220" y1="256" y2="272" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="244" x2="244" y1="256" y2="272" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><text x="262" y="268" style="font-size:14px;font-family:monospace">S</text><text x="270" y="268" style="font-size:14px;font-family:monospace">a</text><text x="278" y="268" style="font-size:14px;font-family:monospace">m</text><text x="286" y="268" style="font-size:14px;font-family:monospace">p</text><text x="294" y="268" style="font-size:14px;font-family:monospace">l</text><text x="302" y="268" style="font-size:14px;font-family:monospace">e</text><line x1="340" x2="340" y1="256" y2="272" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="4" y1="272" y2="288" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><text x="38" y="284" style="font-size:14px;font-family:monospace">M</text><text x="46" y="284" style="font-size:14px;font-family:monospace">o</text><text x="54" y="284" style="font-size:14px;font-family:monospace">n</text><text x="62" y="284" style="font-size:14px;font-family:monospace">a</text><text x="70" y="284" style="font-size:14px;font-family:monospace">d</text><line x1="116" x2="116" y1="272" y2="288" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="140" x2="140" y1="272" y2="288" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><text x="158" y="284" style="font-size:14px;font-family:monospace">M</text><text x="166" y="284" style="font-size:14px;font-family:monospace">o</text><text x="174" y="284" style="font-size:14px;font-family:monospace">n</text><text x="182" y="284" style="font-size:14px;font-family:monospace">a</text><text x="190" y="284" style="font-size:14px;font-family:monospace">d</text><line x1="220" x2="220" y1="272" y2="288" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="244" x2="244" y1="272" y2="288" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><text x="262" y="284" style="font-size:14px;font-family:monospace">M</text><text x="270" y="284" style="font-size:14px;font-family:monospace">o</text><text x="278" y="284" style="font-size:14px;font-family:monospace">n</text><text x="286" y="284" style="font-size:14px;font-family:monospace">a</text><text x="294" y="284" style="font-size:14px;font-family:monospace">d</text><line x1="340" x2="340" y1="272" y2="288" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="4" y1="288" y2="304" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="116" x2="116" y1="288" y2="304" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="140" x2="140" y1="288" y2="304" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="220" x2="220" y1="288" y2="304" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="244" x2="244" y1="288" y2="304" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="340" x2="340" y1="288" y2="304" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="4" y1="304" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="4" x2="12" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="8" x2="16" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="16" x2="24" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="24" x2="32" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="32" x2="40" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="40" x2="48" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="48" x2="56" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="56" x2="64" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="64" x2="72" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="72" x2="80" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="80" x2="88" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="88" x2="96" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="96" x2="104" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="104" x2="112" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="116" x2="116" y1="304" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="112" x2="116" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="140" x2="140" y1="304" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="140" x2="148" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="144" x2="152" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="152" x2="160" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="160" x2="168" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="168" x2="176" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="176" x2="184" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="184" x2="192" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="192" x2="200" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="200" x2="208" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="208" x2="216" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="220" x2="220" y1="304" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="216" x2="220" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="244" x2="244" y1="304" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="244" x2="252" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="248" x2="256" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="256" x2="264" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="264" x2="272" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="272" x2="280" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="280" x2="288" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="288" x2="296" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="296" x2="304" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="304" x2="312" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="312" x2="320" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="320" x2="328" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="328" x2="336" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="340" x2="340" y1="304" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line><line x1="336" x2="340" y1="312" y2="312" stroke="rgb(0,0,0)" stroke-width="1" stroke-linecap="round" stroke-linejoin="mitter"></line></svg>
+
+<p>The lowermost three boxes are the most interesting. Those are the queries, the
+operations we can use on a distribution to make sense of it.</p>
+
+<h1 id="the-expectation-monad">The Expectation Monad</h1>
+<p>This section elaborates on a measure theoretic approach to the
+probability monad. We represent the distribution as a continuation
+that takes a measure function and returns an expectation.</p>
+
+<p>First, we will take a look at our monad type.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">-- Probability Monad</span>
+<span class="kr">newtype</span> <span class="kt">PExp</span> <span class="n">a</span> <span class="o">=</span> <span class="kt">P</span> <span class="p">((</span> <span class="n">a</span> <span class="o">-&gt;</span> <span class="kt">Double</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Double</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>It is worth looking into what happens here. We have the constructor
+<code class="highlighter-rouge">PExp</code>, that takes a function, a <em>measure function</em>, and gives the
+expectation.</p>
+
+<p>The monadic structure of probability distributions is in this setting
+implemented as follows.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">instance</span> <span class="kt">Monad</span> <span class="kt">P</span> <span class="kr">where</span>
+  <span class="n">return</span> <span class="n">x</span> <span class="o">=</span> <span class="kt">P</span> <span class="p">(</span><span class="nf">\</span><span class="n">h</span> <span class="o">-&gt;</span> <span class="n">h</span> <span class="n">x</span><span class="p">)</span>
+  <span class="p">(</span><span class="kt">P</span> <span class="n">d</span><span class="p">)</span> <span class="o">&gt;&gt;=</span> <span class="n">k</span> <span class="o">=</span>
+       <span class="kt">P</span> <span class="p">(</span><span class="nf">\</span><span class="n">h</span> <span class="o">-&gt;</span> <span class="kr">let</span> <span class="n">apply</span> <span class="p">(</span><span class="kt">P</span> <span class="n">f</span><span class="p">)</span> <span class="n">arg</span> <span class="o">=</span> <span class="n">f</span> <span class="n">arg</span>
+                    <span class="n">g</span> <span class="n">x</span> <span class="o">=</span> <span class="n">apply</span> <span class="p">(</span><span class="n">k</span> <span class="n">x</span><span class="p">)</span> <span class="n">h</span>
+                  <span class="kr">in</span> <span class="n">d</span> <span class="n">g</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>From here the expectation monad is easily implemented as the whole
+monad type is built around it.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">instance</span> <span class="kt">ExpMonad</span> <span class="kt">PExp</span> <span class="kr">where</span>
+  <span class="n">expectation</span> <span class="n">h</span> <span class="p">(</span><span class="kt">PExp</span> <span class="n">d</span><span class="p">)</span> <span class="o">=</span> <span class="n">d</span> <span class="n">h</span>
+</code></pre></div></div>
+
+<p>We could now start to do experiments base on this. But we would much
+rather like to play with <code class="highlighter-rouge">support</code> and <code class="highlighter-rouge">sample</code> also. These, however,
+are quite difficult to implement using the type of <code class="highlighter-rouge">PExp</code> so we are
+going to attack this from another angle.</p>
+
+<h1 id="generalizing">Generalizing</h1>
+<p>The above implementation of the monad type is not very suited for other than
+the expectation query. To make something more suited, we will try to stay true
+to the paper and implement a type such that we can hold data as it is defined</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">data</span> <span class="kt">P</span> <span class="n">a</span> <span class="kr">where</span>
+    <span class="kt">R</span> <span class="o">::</span> <span class="n">a</span> <span class="o">-&gt;</span> <span class="kt">P</span> <span class="n">a</span>
+    <span class="kt">B</span> <span class="o">::</span> <span class="kt">P</span> <span class="n">a</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="o">-&gt;</span> <span class="kt">P</span> <span class="n">b</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">P</span> <span class="n">b</span>
+    <span class="kt">C</span> <span class="o">::</span> <span class="kt">Probability</span> <span class="o">-&gt;</span> <span class="kt">P</span> <span class="n">a</span> <span class="o">-&gt;</span> <span class="kt">P</span> <span class="n">a</span> <span class="o">-&gt;</span> <span class="kt">P</span> <span class="n">a</span>
+</code></pre></div></div>
+
+<p>The quick reader will see that we now use GADTs instead or ordinary ADTs. This
+is due to the <em>Bind</em> constructor. This poses a change of the type, and can not
+be implemented by ADTs.</p>
+
+<p>In the instances for the monad and probability monad we simply defer everything
+to used directly by the queries.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">-- P is a monad</span>
+<span class="kr">instance</span> <span class="kt">Monad</span> <span class="kt">P</span> <span class="kr">where</span>
+  <span class="n">return</span> <span class="n">x</span> <span class="o">=</span> <span class="kt">R</span> <span class="n">x</span>
+  <span class="n">d</span> <span class="o">&gt;&gt;=</span> <span class="n">k</span>  <span class="o">=</span> <span class="kt">B</span> <span class="n">d</span> <span class="n">k</span>
+
+<span class="c1">-- P is a probability monad</span>
+<span class="kr">instance</span> <span class="kt">ProbabilityMonad</span> <span class="kt">P</span> <span class="kr">where</span>
+  <span class="n">choose</span> <span class="n">p</span> <span class="n">d1</span> <span class="n">d2</span> <span class="o">=</span> <span class="kt">C</span> <span class="n">p</span> <span class="n">d1</span> <span class="n">d2</span>
+</code></pre></div></div>
+
+<p>This allows for definitions of the queries to be directly copied from the
+paper. In addition to the <code class="highlighter-rouge">expectation</code> query we had before, we can now also
+do <code class="highlighter-rouge">support</code> and <code class="highlighter-rouge">sampling</code>.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">instance</span> <span class="kt">SupportMonad</span> <span class="kt">P</span> <span class="kr">where</span>
+  <span class="n">support</span> <span class="p">(</span><span class="kt">R</span> <span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
+  <span class="n">support</span> <span class="p">(</span><span class="kt">B</span> <span class="n">d</span> <span class="n">k</span><span class="p">)</span> <span class="o">=</span> <span class="n">concat</span> <span class="p">[</span><span class="n">support</span> <span class="p">(</span><span class="n">k</span> <span class="n">x</span><span class="p">)</span> <span class="o">|</span> <span class="n">x</span> <span class="o">&lt;-</span> <span class="n">support</span> <span class="n">d</span><span class="p">]</span>
+  <span class="n">support</span> <span class="p">(</span><span class="kt">C</span> <span class="n">p</span> <span class="n">d1</span> <span class="n">d2</span><span class="p">)</span> <span class="o">=</span> <span class="n">support</span> <span class="n">d1</span> <span class="o">++</span> <span class="n">support</span> <span class="n">d2</span>
+<span class="o">...</span>
+</code></pre></div></div>
+
+<p>For the full source I once again refer to the
+<a href="https://gist.github.com/madsbuch/5a8a1fc9b70621dd93dd70058754b126">gist on Github</a>..</p>
+
+<h1 id="making-distributions">Making Distributions</h1>
+<p>In this section we will take a look on how to construct some interesting
+distributions and how the queries work on them.</p>
+
+<p>As often when working with probabilities we will look on dices. To make
+it easy we make a data type deriving <code class="highlighter-rouge">Enum</code> for easy enumeration.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">data</span> <span class="kt">Dice</span> <span class="o">=</span> <span class="kt">One</span> <span class="o">|</span> <span class="kt">Two</span> <span class="o">|</span> <span class="kt">Three</span> <span class="o">|</span> <span class="kt">Four</span> <span class="o">|</span> <span class="kt">Five</span> <span class="o">|</span> <span class="kt">Six</span>
+  <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Enum</span><span class="p">,</span> <span class="kt">Eq</span><span class="p">,</span> <span class="kt">Show</span><span class="p">,</span> <span class="kt">Read</span><span class="p">,</span> <span class="kt">Ord</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>We can from here make a uniform distribution over the sides of a dice
+like following.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dist</span> <span class="o">::</span> <span class="kt">P</span> <span class="kt">Dice</span>
+<span class="n">dist</span> <span class="o">=</span> <span class="n">uniform</span> <span class="p">[</span><span class="kt">One</span> <span class="o">..</span> <span class="kt">Six</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">uniform</code> method is a simple function that makes a uniform distribution
+over a list using the <code class="highlighter-rouge">choose</code> function and the length of the list.</p>
+
+<p>A support query can be performed as follows.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">example01a</span> <span class="o">=</span>
+    <span class="kr">let</span> <span class="n">dist</span> <span class="o">::</span> <span class="kt">P</span> <span class="kt">Dice</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">uniform</span> <span class="p">[</span><span class="kt">One</span> <span class="o">..</span> <span class="kt">Six</span><span class="p">]</span>
+    <span class="kr">in</span> <span class="n">support</span> <span class="n">dist</span>
+</code></pre></div></div>
+
+<p>Yielding the result of <code class="highlighter-rouge">[One,Two,Three,Four,Five,Six]</code>. To create a posterior
+distribution from a prior, we use the bind. This translates into elegant and
+easily readable dependent distributions.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>example02a =
+    let dist :: P Dice
+        dist = do
+          d &lt;- uniform [One .. Six]
+          return (if d == Six then One else d)
+    in support dist
+</code></pre></div></div>
+
+<p>This yields the result <code class="highlighter-rouge">[One,Two,Three,Four,Five,One]</code> Note how <code class="highlighter-rouge">One</code> appears
+twice. This make immediate sense from the definition of the distribution
+though we would have expected duplications removed. However, this is quite
+easily done in Haskell.</p>
+
+<p>The last example in the gist is one of the more interesting. The distribution
+defined is potentially infinite. Intuitively it counts up with a probability
+of a half and continues doing that.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">walk</span> <span class="n">x</span> <span class="o">=</span>
+   <span class="kr">do</span> <span class="n">bit</span> <span class="o">&lt;-</span> <span class="n">uniform</span> <span class="p">[</span><span class="kt">True</span><span class="p">,</span> <span class="kt">False</span><span class="p">]</span>
+      <span class="kr">if</span> <span class="n">bit</span> <span class="kr">then</span>
+          <span class="n">return</span> <span class="n">x</span>
+      <span class="kr">else</span> <span class="n">walk</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>So what happens when we throw the various queries on it?</p>
+
+<p>The <strong>support</strong> query should return a list of all potential outcomes of the
+distribution, and so it does. running <code class="highlighter-rouge">example03a</code> returns
+<code class="highlighter-rouge">[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,^CInterrupted.</code>. If not
+stopped it would continue counting up.</p>
+
+<p>An important remark here is that
+order of the <code class="highlighter-rouge">True</code> and <code class="highlighter-rouge">False</code> in the inner distribution. If we switch it
+such that the inner distribution reads <code class="highlighter-rouge">uniform [False, True]</code> it will never
+return anything. Intuitively one can understand it as the last element is
+unfold first. In the current ordering the walk function creates a list which
+is reducible though infinite.</p>
+
+<p>Secondly we  have the <strong>expectation</strong> query. issuing this yields an infinite
+computation without any result. This is because we attempt to unroll the full
+structure to get the expectation of an event.</p>
+
+<p>Lastly we have the <strong>sample</strong> query. This query works completely as expected yielding a list of samples. Issuing <code class="highlighter-rouge">example03c</code> will return
+<code class="highlighter-rouge">[0,1,3,0,0,2,0,1,0,1]</code> which intuitively makes sense.</p>
+
+<p>Though the expectation query is not possible through the current implementation
+we could actually still get an idea about the expectations using the Monte
+Carlo Technique. Sampling 10.000 elements of the walk distribution and taking
+the frequency gives us following.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="n">mc</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">4937</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2483</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1294</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">630</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">326</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">159</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">87</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="mi">34</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">27</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">11</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">1</span><span class="p">)]</span>
+</code></pre></div></div>
+
+<p>Which is what we would expect.</p>
+
+<h1 id="concluding-remarks">Concluding Remarks</h1>
+<p>We have discussed Ramsey and Pfeffer’s paper in this article. It provides a
+fundamental understanding based in programming languages on distributions and
+probabilities. It is interesting because it makes languages like Hakary much
+easier to understand. Furthermore it also greatly simplifies the hole world of
+probabilities.</p>
+
+        </section>
+        <footer class="post-footer">
+          <section class="share">
+            
+              
+                <a class="icon-twitter" href="http://twitter.com/share?text=The+Probability+Monad&amp;url=http://madsbuch.com/blog/the-probability-monad"
+                  onclick="window.open(this.href, 'twitter-share', 'width=550,height=255');return false;">
+                <i class="fa fa-twitter"></i><span class="hidden">twitter</span>
+                </a>
+              
+            
+              
+            
+          </section>
+        </footer>
+        <div class="bottom-teaser cf">
+          <div class="isLeft">
+            <h5 class="index-headline featured"><span>Written by</span></h5>
+            <section class="author">
+              <div class="author-image" style="background-image: url(/blog/assets/images/author.png)">Blog Logo</div>
+              <h4>Mads Buch</h4>
+              <p class="bio"></p>
+              <hr>
+              <p class="published">Published <time datetime="2016-12-03 00:00">03 Dec 2016</time></p>
+            </section>
+          </div>
+          
+          <div class="isRight">
+            <h5 class="index-headline featured"><span>Supported by</span></h5>
+            <footer class="site-footer">
+              <section class="poweredby">Proudly published with <a href="http://jekyllrb.com"> Jekyll</a></section>
+              <a class="subscribe" href="/blog/feed.xml"> <span class="tooltip"> <i class="fa fa-rss"></i> You should subscribe to my feed.</span></a>
+              <div class="inner">
+                <section class="copyright">All content copyright <a href="/">Mads Buch</a> &copy; 2019<br>All rights reserved.</section>
+              </div>
+            </footer>
+          </div>
+        </div>
+        
+      </article>
+    </main>
+    <div class="bottom-closer">
+      <div class="background-closer-image"  style="background-image: url(/blog/assets/images/cover.jpg)">
+        Image
+      </div>
+      <div class="inner">
+        <h1 class="blog-title">Mads Buch</h1>
+        <h2 class="blog-description">Technical articles
+</h2>
+        <a href="/blog" class="btn">Back to Overview</a>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="/blog/assets/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/blog/assets/js/index.js"></script>
+<script type="text/javascript" src="/blog/assets/js/readingTime.min.js"></script>
+<script>
+(function ($) {
+  "use strict";
+  $(document).ready(function(){
+
+    var $window = $(window),
+    $image = $('.post-image-image, .teaserimage-image');
+    
+      $window.on('scroll', function() {
+        var top = $window.scrollTop();
+
+        if (top < 0 || top > 1500) { return; }
+        $image
+          .css('transform', 'translate3d(0px, '+top/3+'px, 0px)')
+          .css('opacity', 1-Math.max(top/700, 0));
+      });
+      $window.trigger('scroll');
+
+      var height = $('.article-image').height();
+      $('.post-content').css('padding-top', height + 'px');
+
+      $('a[href*=#]:not([href=#])').click(function() {
+        if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'')
+         && location.hostname == this.hostname) {
+          var target = $(this.hash);
+          target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+          if (target.length) {
+            $('html,body').animate({ scrollTop: target.offset().top }, 500);
+            return false;
+          }
+        }
+      });
+
+  });
+}(jQuery));
+</script>
+
+
+  </body>
+</html>
