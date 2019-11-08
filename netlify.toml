@@ -1,0 +1,10 @@
+[[redirects]]
+  from = "/blog/:title"
+  to = "https://blog.madsbuch.com/:title"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/thesis"
+  to = "https://thesis.madsbuch.com/"
+  status = 301
+  force = true
