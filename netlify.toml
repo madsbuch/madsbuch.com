@@ -4,6 +4,11 @@
   status = 301
   force = true
 [[redirects]]
+  from = "/blog/"
+  to = "https://blog.madsbuch.com/"
+  status = 301
+  force = true
+[[redirects]]
   from = "/thesis"
   to = "https://thesis.madsbuch.com/"
   status = 301
